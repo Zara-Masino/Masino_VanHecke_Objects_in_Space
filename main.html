@@ -146,37 +146,37 @@ void main()
 
 
         var geometry = new THREE.SphereGeometry(15, 32, 32);
-            geometry.computeFaceNormals();
-            var sphere = new THREE.Mesh(geometry, makeMaterial());
-            sphere.position.x = 300;
-            sphere.position.y = 300;
-            sphere.position.z = 300;
+        geometry.computeFaceNormals();
+        var sphere = new THREE.Mesh(geometry, makeMaterial());
+        sphere.position.x = 300;
+        sphere.position.y = 300;
+        sphere.position.z = 300;
 
-            //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-            sphere.geometry.computeBoundingSphere();
-            objects.push(sphere);
-            scene.add(sphere);
+        //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+        sphere.geometry.computeBoundingSphere();
+        objects.push(sphere);
+        scene.add(sphere);
 
 
 
         for (let i = 0; i < 30; i++) {
             makeSphere();
             makeCube();
-           // console.log(objects[i]);
+            // console.log(objects[i]);
         }
 
 
         // objectArray[i].geometry.boundingSphere.radius
         // objectArray[i].geometry.boundingSphere.center.x
         // objectArray[i].position.x
-        function isPointInsideSphere(point, objectArray) {
+        function isPointInsideSphere(point, object) {
             for (let i = 0; i < objects.length; i++) {
                 const distance = Math.sqrt(
-                    (point.x - objectArray[i].position.x) * (point.x - objectArray[i].position.x) +
-                    (point.y - objectArray[i].position.y) * (point.y - objectArray[i].position.y) +
-                    (point.z - objectArray[i].position.z) * (point.z - objectArray[i].position.z)
+                    (point.x - object.position.x) * (point.x - object.position.x) +
+                    (point.y - object.position.y) * (point.y - object.position.y) +
+                    (point.z - object.position.z) * (point.z - object.position.z)
                 )
-                return distance < objectArray[i].geometry.boundingSphere.radius;
+                return distance < object.geometry.boundingSphere.radius;
             }
             // we are using multiplications because is faster than calling Math.pow
 
@@ -245,10 +245,14 @@ void main()
 
         function animate() {
 
-            var collide = isPointInsideSphere(cameraPosition, objects);
-            if (collide == true) {
-                console.log("collide", collide);
+            for (let i = 0; i < objects.length; i++) {
+                var collide = isPointInsideSphere(cameraPosition, objects[i]);
+                if (collide == true) {
+                    //do something with collision
+                }
+
             }
+
             camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
 
             requestAnimationFrame(animate);
