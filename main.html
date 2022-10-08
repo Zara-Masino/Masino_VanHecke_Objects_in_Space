@@ -48,6 +48,8 @@ void main()
 
     <script type="module">
 
+        let objects = [];
+
         var xLookAt = 0;
         var yLookAt = 0;
         var zLookAt = 0;
@@ -116,6 +118,8 @@ void main()
             sphere.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
             sphere.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
             //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+            sphere.geometry.computeBoundingSphere();
+            objects.push(sphere);
             scene.add(sphere);
         }
 
@@ -128,6 +132,8 @@ void main()
             cube.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
             cube.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
             cube.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
+            cube.geometry.computeBoundingSphere();
+            objects.push(cube);
             scene.add(cube);
         }
 
@@ -141,6 +147,8 @@ void main()
         for (let i = 0; i < 30; i++) {
             makeSphere();
             makeCube();
+
+            console.log(objects[i] );
 
         }
 
