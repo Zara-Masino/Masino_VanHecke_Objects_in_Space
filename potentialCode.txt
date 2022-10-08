@@ -1,0 +1,39 @@
+Blog on camera 
+https://blogs.perficient.com/2020/05/21/3d-camera-movement-in-three-js-i-learned-the-hard-way-so-you-dont-have-to/
+
+Camera movement with mouse (I found this on phone so I’m not sure if it will actually works) ->
+https://codepen.io/misterkidult/pen/dybgapB
+
+
+Object pool -> https://codepen.io/sebastianlenton/pen/QWLQGPp
+
+Particle explosion -> 
+https://codepen.io/Xanmia/pen/nqyMgJ
+
+Shred object into particles ->
+https://github.com/Jam3/jam3-lesson-webgl-shader-threejs#step-4-exploding-triangles
+
+
+Idea
+To see how many objects you’ve passed
+Keep iterating through for loop of group of objects 
+If the cameras x y or z position is greater than a specific objects x y or z position in the array then increment the number of boxes you’ve passed. Otherwise decrement 
+After the number of objects you have passed reached a certain number, move yourself to the thr very starting position. 
+
+Look behind with camera ->
+https://github.com/Jam3/jam3-lesson-webgl-shader-threejs#step-4-exploding-triangles
+
+Calculate where the camera is looking and where the atarget is 
+https://stackoverflow.com/questions/14813902/three-js-get-the-direction-in-which-the-camera-is-looking
+
+
+No clue what this is but
+https://bitcoden.com/answers/rotate-camera-in-threejs-with-mouse
+
+https://stackoverflow.com/questions/8426822/rotate-camera-in-three-js-with-mouse
+
+Mouse movement for camera ->
+https://discourse.threejs.org/t/mouse-movement-to-move-camera/25643/2
+
+Actually seems like a helpful example for moving camera in direction of the mouse ->
+https://jsfiddle.net/f2Lommf5/14006/
