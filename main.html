@@ -95,7 +95,7 @@ void main()
             var sphere = new THREE.Mesh(geometry, makeMaterial());
             sphere.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
             sphere.position.y = (Math.random() *  (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
-            sphere.position.z =  (Math.random() *  (camera.position.z + 200) - (camera.position.z + 50)) + (camera.position.z + 50);
+            sphere.position.z =  (Math.random() *  (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
             //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
             scene.add(sphere);
         }
@@ -108,7 +108,7 @@ void main()
             var cube = new THREE.Mesh(boxGeometry, makeMaterial());
             cube.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
             cube.position.y = (Math.random() *  (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
-            cube.position.z =  (Math.random() *  (camera.position.z + 200) - (camera.position.z + 50)) + (camera.position.z + 50);
+            cube.position.z =  (Math.random() *  (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
             scene.add(cube);
         }
 
@@ -139,16 +139,16 @@ void main()
         function keyHandler(e) {
             switch (e.keyCode) {
                 case 83: // The 'S' key
-                    yLookAt -= 10;
+                    yLookAt -= 50;
                     break;
                 case 68: // The 'D' key
-                    xLookAt += 10;
+                    xLookAt += 50;
                     break;
                 case 65: // The 'A' keysadwadasdadwawdawd
-                    xLookAt -= 10;
+                    xLookAt -= 50;
                     break;
                 case 87: // The 'W' key
-                yLookAt += 10;
+                yLookAt += 50;
                     break;
             }
         }
