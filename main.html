@@ -109,6 +109,10 @@ void main()
             }
         }
 
+        console.log(random(0));
+        console.log(random(1));
+        console.log(random(4));
+
 
         function makeSphere() {
             // Set up the geometries
@@ -243,6 +247,8 @@ void main()
         }
         document.addEventListener("keydown", keyHandler, false);
 
+
+
         function animate() {
 
             for (let i = 0; i < objects.length; i++) {
@@ -250,7 +256,6 @@ void main()
                 if (collide == true) {
                     //do something with collision
                 }
-
             }
 
             camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
