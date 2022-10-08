@@ -86,6 +86,25 @@ void main()
         //var material = new THREE.MeshPhongMaterial({ color: 0x1562ff, emissive: 0x072534, flatShading: true });
         // }
 
+        function random(type) {
+            let randomNumber = Math.random() * 10;
+            if (type == 0) {
+                if (randomNumber % 2 == 0) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                let array= [];
+                for (let i = 0; i < type; i++){
+                    let newN =  Math.round(Math.random() * 10);
+                    array.push(newN);
+                }
+                return array;
+            }
+        }
 
 
         function makeSphere() {
