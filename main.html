@@ -90,7 +90,7 @@ void main()
         // }
 
         function random(type) {
-            let randomNumber = Math.random() * 10;
+            let randomNumber = Math.round(Math.random() * 10);
             if (type == 0) {
                 if (randomNumber % 2 == 0) {
                     return true;
@@ -109,37 +109,76 @@ void main()
             }
         }
 
+
         console.log(random(0));
         console.log(random(1));
         console.log(random(4));
 
 
-        function makeSphere() {
+        function Sphere() {
+            this.rotateOnXAxis = random(0);
+            if (this.rotateOnXAxis == true) {
+                this.rotateXSpeed = Math.random() * .12;
+                if (random(0) == false) {
+                    this.rotateXSpeed *= -1;
+                }
+            }
+
+            this.rotateOnYAxis = random(0);
+            if (this.rotateOnYAxis == true) {
+                this.rotateYSpeed = Math.random() * .12;
+                if (random(0) == false) {
+                    this.rotateYSpeed *= -1;
+                }
+            }
+
             // Set up the geometries
-            var geometry = new THREE.SphereGeometry(15, 32, 32);
-            geometry.computeFaceNormals();
-            var sphere = new THREE.Mesh(geometry, makeMaterial());
-            sphere.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
-            sphere.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
-            sphere.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
-            //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-            sphere.geometry.computeBoundingSphere();
-            objects.push(sphere);
-            scene.add(sphere);
+
+            this.create = function () {
+                var geometry = new THREE.SphereGeometry(15, 32, 32);
+                geometry.computeFaceNormals();
+                this.object = new THREE.Mesh(geometry, makeMaterial());
+                this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
+                this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
+                this.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
+                //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+                this.object.geometry.computeBoundingSphere();
+                scene.add(this.object);
+            }
+
         }
 
-        function makeCube() {
-            let boxGeometry = new THREE.BoxGeometry(20, 20, 20);
-            // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
-            // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-            // for (let i = 0; i < 1; i++) {
-            var cube = new THREE.Mesh(boxGeometry, makeMaterial());
-            cube.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
-            cube.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
-            cube.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
-            cube.geometry.computeBoundingSphere();
-            objects.push(cube);
-            scene.add(cube);
+        function Cube() {
+            this.rotateOnXAxis = random(0);
+            if (this.rotateOnXAxis == true) {
+                this.rotateXSpeed = Math.random() * .12;
+                if (random(0) == false) {
+                    this.rotateXSpeed *= -1;
+                }
+            }
+
+            this.rotateOnYAxis = random(0);
+            if (this.rotateOnYAxis == true) {
+                this.rotateYSpeed = Math.random() * .12;
+                if (random(0) == false) {
+                    this.rotateYSpeed *= -1;
+                }
+            }
+
+            this.create = function () {
+                let boxGeometry = new THREE.BoxGeometry(20, 20, 20);
+                // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
+                // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+                // for (let i = 0; i < 1; i++) {
+                this.object = new THREE.Mesh(boxGeometry, makeMaterial());
+                this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
+                this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
+                this.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
+                this.object.geometry.computeBoundingSphere();
+                scene.add(this.object);
+
+            }
+
         }
 
         function makeMaterial() {
@@ -158,30 +197,35 @@ void main()
 
         //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
         sphere.geometry.computeBoundingSphere();
-        objects.push(sphere);
+        //objects.push(sphere);
         scene.add(sphere);
 
 
 
         for (let i = 0; i < 30; i++) {
-            makeSphere();
-            makeCube();
+            let sphere = new Sphere();
+            let cube = new Cube();
+            objects.push(sphere);
+            objects.push(cube);
+            sphere.create();
+            cube.create();
             // console.log(objects[i]);
         }
 
 
+        console.log(objects);
+
         // objectArray[i].geometry.boundingSphere.radius
         // objectArray[i].geometry.boundingSphere.center.x
         // objectArray[i].position.x
-        function isPointInsideSphere(point, object) {
-            for (let i = 0; i < objects.length; i++) {
-                const distance = Math.sqrt(
-                    (point.x - object.position.x) * (point.x - object.position.x) +
-                    (point.y - object.position.y) * (point.y - object.position.y) +
-                    (point.z - object.position.z) * (point.z - object.position.z)
-                )
-                return distance < object.geometry.boundingSphere.radius;
-            }
+        function isPointInsideSphere(point, shape) {
+            // console.log("SHAPE???????????? " , shape.object);
+            const distance = Math.sqrt(
+                (point.x - shape.object.position.x) * (point.x - shape.object.position.x) +
+                (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
+                (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
+            )
+            return distance < shape.object.geometry.boundingSphere.radius;
             // we are using multiplications because is faster than calling Math.pow
 
         }
@@ -250,8 +294,19 @@ void main()
 
 
         function animate() {
-
             for (let i = 0; i < objects.length; i++) {
+
+                if (objects[i].rotateOnYAxis == true) {
+                    if(random(0)==true){
+                        objects[i].object.rotateY(objects[i].rotateYSpeed);
+                    }
+                }
+                if (objects[i].rotateOnXAxis == true) {
+                    if(random(0)==true){
+                        objects[i].object.rotateX(objects[i].rotateXSpeed);
+                    }
+                }
+                //console.log("object", objects[i]);
                 var collide = isPointInsideSphere(cameraPosition, objects[i]);
                 if (collide == true) {
                     //do something with collision
