@@ -59,6 +59,7 @@ void main()
         var scene = new THREE.Scene();
 
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+        var cameraPosition = new THREE.Vector3(300, 300, 300)
         camera.position.set(300, 300, 300);
         camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
         scene.add(camera);
@@ -99,9 +100,9 @@ void main()
                 }
             }
             else {
-                let array= [];
-                for (let i = 0; i < type; i++){
-                    let newN =  Math.round(Math.random() * 10);
+                let array = [];
+                for (let i = 0; i < type; i++) {
+                    let newN = Math.round(Math.random() * 10);
                     array.push(newN);
                 }
                 return array;
@@ -144,13 +145,43 @@ void main()
 
 
 
+        var geometry = new THREE.SphereGeometry(15, 32, 32);
+            geometry.computeFaceNormals();
+            var sphere = new THREE.Mesh(geometry, makeMaterial());
+            sphere.position.x = 300;
+            sphere.position.y = 300;
+            sphere.position.z = 300;
+
+            //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+            sphere.geometry.computeBoundingSphere();
+            objects.push(sphere);
+            scene.add(sphere);
+
+
+
         for (let i = 0; i < 30; i++) {
             makeSphere();
             makeCube();
+           // console.log(objects[i]);
+        }
 
-            console.log(objects[i] );
+
+        // objectArray[i].geometry.boundingSphere.radius
+        // objectArray[i].geometry.boundingSphere.center.x
+        // objectArray[i].position.x
+        function isPointInsideSphere(point, objectArray) {
+            for (let i = 0; i < objects.length; i++) {
+                const distance = Math.sqrt(
+                    (point.x - objectArray[i].position.x) * (point.x - objectArray[i].position.x) +
+                    (point.y - objectArray[i].position.y) * (point.y - objectArray[i].position.y) +
+                    (point.z - objectArray[i].position.z) * (point.z - objectArray[i].position.z)
+                )
+                return distance < objectArray[i].geometry.boundingSphere.radius;
+            }
+            // we are using multiplications because is faster than calling Math.pow
 
         }
+
 
 
         function render() {
@@ -162,6 +193,9 @@ void main()
             requestAnimationFrame(render); // call it again!
             renderer.render(scene, camera);
         }
+
+
+
 
         function keyHandler(e) {
             switch (e.keyCode) {
@@ -179,24 +213,30 @@ void main()
                     break;
                 case 38: // The 'up arrow' key
                     camera.position.y += 50;
+                    cameraPosition.y += 50;
                     break;
                 case 40: // The 'down arrow' key
                     camera.position.y -= 50;
+                    cameraPosition.y -= 50;
                     break;
 
                 case 37: // The 'left arrow' key
                     camera.position.x -= 50;
+                    cameraPosition.x -= 50;
                     break;
 
                 case 39: // The 'right arrow' key
                     camera.position.x += 50;
+                    cameraPosition.x += 50;
                     break;
 
                 case 90: // The 'z arrow' key
                     camera.position.z += 50;
+                    cameraPosition.z += 50;
                     break;
                 case 88: // The 'down arrow' key
                     camera.position.z -= 50;
+                    cameraPosition.z -= 50;
                     break;
             }
 
@@ -205,7 +245,10 @@ void main()
 
         function animate() {
 
-
+            var collide = isPointInsideSphere(cameraPosition, objects);
+            if (collide == true) {
+                console.log("collide", collide);
+            }
             camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
 
             requestAnimationFrame(animate);
