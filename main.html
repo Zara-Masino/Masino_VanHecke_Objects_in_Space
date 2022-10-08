@@ -47,13 +47,17 @@ void main()
     </script>
 
     <script type="module">
+
+        var xLookAt = 0;
+        var yLookAt = 0;
+        var zLookAt = 0;
         import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
 
         // float rand = Math.random()*1;
         var scene = new THREE.Scene();
 
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        camera.position.set(300,300,300);
+        camera.position.set(300, 300, 300);
         camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
         scene.add(camera);
 
@@ -89,9 +93,9 @@ void main()
             var geometry = new THREE.SphereGeometry(15, 32, 32);
             geometry.computeFaceNormals();
             var sphere = new THREE.Mesh(geometry, makeMaterial());
-            sphere.position.x = Math.random() * 200 - 10;
-            sphere.position.y = Math.random() * 200 - 10;
-            sphere.position.z = Math.random() *  200 - 10;
+            sphere.position.x = (Math.random() * (camera.position.x + 600) - camera.position.x + -300) + (camera.position.x - 300);
+            sphere.position.y = Math.random() * (camera.position.y + 50);
+            sphere.position.z = Math.random() * 200 - 10;
             //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
             scene.add(sphere);
         }
@@ -102,9 +106,9 @@ void main()
             // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
             // for (let i = 0; i < 1; i++) {
             var cube = new THREE.Mesh(boxGeometry, makeMaterial());
-            cube.position.x = Math.random() *  200 - 10;
-            cube.position.y = Math.random() *  200 - 10;
-            cube.position.z = Math.random() *  200 - 10
+            cube.position.x = Math.random() * 200 - 10;
+            cube.position.y = Math.random() * 200 - 10;
+            cube.position.z = Math.random() * 200 - 10
             scene.add(cube);
         }
 
@@ -115,7 +119,7 @@ void main()
 
 
 
-        for(let i = 0; i < 25; i++){
+        for (let i = 0; i < 25; i++) {
             makeSphere();
             makeCube();
 
@@ -131,6 +135,34 @@ void main()
             requestAnimationFrame(render); // call it again!
             renderer.render(scene, camera);
         }
+
+        function keyHandler(e) {
+            switch (e.keyCode) {
+                case 83: // The 'S' key
+                    yLookAt -= 10;
+                    break;
+                case 68: // The 'D' key
+                    xLookAt += 10;
+                    break;
+                case 65: // The 'A' keysadwadasdadwawdawd
+                    xLookAt -= 10;
+                    break;
+                case 87: // The 'W' key
+                yLookAt += 10;
+                    break;
+            }
+        }
+        document.addEventListener("keydown", keyHandler, false);
+
+        function animate() {
+
+
+            camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
+
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
 
         render();
     </script>
