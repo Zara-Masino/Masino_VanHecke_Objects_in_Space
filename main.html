@@ -41,8 +41,7 @@ void main()
 in float rand;
  
 void main()
-{
-   
+{ 
     gl_FragColor = vec4(1.0, rand, 1.0-rand, 1.0);
 }
     </script>
@@ -50,11 +49,11 @@ void main()
     <script type="module">
         import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
 
-       // float rand = Math.random()*1;
+        // float rand = Math.random()*1;
         var scene = new THREE.Scene();
 
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        camera.position.z = 50;
+        camera.position.set(300,300,300);
         camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
         scene.add(camera);
 
@@ -65,56 +64,67 @@ void main()
         // If you want the render to span the window, uncomment this
         renderer.setSize(window.innerWidth, window.innerHeight);
 
-        // Set up the geometries
-        var geometry = new THREE.SphereGeometry(15, 32, 32);
-        geometry.computeFaceNormals();
+
 
         // The "ShaderMaterial" defines and calculates projectionMatrix, viewMatrix, and modelMatrix behind the scenes
         //   This means that you do not need to define them or alter them, but DO need to include them in your
         //   vertex shader.
         // If you want to do everything manually, you would use the RawShaderMaterial object
-        var customUniforms = {
-            xPosition: {x: Math.random()*255},
-            yPosition: {y: Math.random()*255}
-        };
-        var material = new THREE.ShaderMaterial({
-            uniforms: customUniforms,
-            vertexShader: document.getElementById("vertexShader").innerText,
-            fragmentShader: document.getElementById("fragShader").innerText
-        });
-
+        // var customUniforms = {
+        //     xPosition: {x: Math.random()*255},
+        //     yPosition: {y: Math.random()*255}
+        // };
+        // var material = new THREE.ShaderMaterial({
+        //     uniforms: customUniforms,
+        //     vertexShader: document.getElementById("vertexShader").innerText,
+        //     fragmentShader: document.getElementById("fragShader").innerText
+        // });
         //var material = new THREE.MeshPhongMaterial({ color: 0x1562ff, emissive: 0x072534, flatShading: true });
-        var sphere = new THREE.Mesh(geometry, material);
-
-        sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-
-        scene.add(sphere);
-
-
-
-
-        let boxGeometry = new THREE.BoxGeometry(20, 20, 20);
-        // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
-        // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-
-        // for (let i = 0; i < 1; i++) {
-
-        const object = new THREE.Mesh(boxGeometry, material);
-
-        // object.position.x = Math.random() * 800 - 400;
-        // object.position.y = Math.random() * 800 - 400;
-        // object.position.z = Math.random() * 800 - 400;
-
-        scene.add(object);
         // }
 
 
 
+        function makeSphere() {
+            // Set up the geometries
+            var geometry = new THREE.SphereGeometry(15, 32, 32);
+            geometry.computeFaceNormals();
+            var sphere = new THREE.Mesh(geometry, makeMaterial());
+            sphere.position.x = Math.random() * 200 - 10;
+            sphere.position.y = Math.random() * 200 - 10;
+            sphere.position.z = Math.random() *  200 - 10;
+            //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+            scene.add(sphere);
+        }
+
+        function makeCube() {
+            let boxGeometry = new THREE.BoxGeometry(20, 20, 20);
+            // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
+            // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+            // for (let i = 0; i < 1; i++) {
+            var cube = new THREE.Mesh(boxGeometry, makeMaterial());
+            cube.position.x = Math.random() *  200 - 10;
+            cube.position.y = Math.random() *  200 - 10;
+            cube.position.z = Math.random() *  200 - 10
+            scene.add(cube);
+        }
+
+        function makeMaterial() {
+            var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+            return material;
+        }
+
+
+
+        for(let i = 0; i < 25; i++){
+            makeSphere();
+            makeCube();
+
+        }
 
 
         function render() {
             //sphere.rotateY(0.1);
-            sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+            //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
 
             // customUniforms.x=Math.random()*1;
 
