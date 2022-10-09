@@ -23,8 +23,6 @@
             p += displacement*p;
         
             gl_Position =  projectionMatrix * modelViewMatrix * vec4(p, 1.0);
-
-              
         }
 
     </script>
@@ -41,7 +39,6 @@ void main()
     <script type="module">
 
         let objects = [];
-
         var xLookAt = 0;
         var yLookAt = 0;
         var zLookAt = 0;
@@ -50,7 +47,6 @@ void main()
 
         // float rand = Math.random()*1;
         var scene = new THREE.Scene();
-
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
         var cameraPosition = new THREE.Vector3(300, 300, 300)
         camera.position.set(300, 300, 300);
@@ -100,11 +96,20 @@ void main()
                 return array;
             }
         }
-
-
         console.log(random(0));
         console.log(random(1));
         console.log(random(4));
+
+        function makeMaterial() {
+            if (random(1) > 8) {
+                return shaderMaterials;
+            }
+            else {
+                var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+                return material;
+            }
+        }
+
 
         function Piece(shape) {
             this.rotateOnXAxis = random(0);
@@ -169,22 +174,22 @@ void main()
                 else {
 
                     let x, y, z;
-                if (random(1) > 7) {
-                    let w = Math.random() * 40 + 10;
-                    x = w;
-                    y = w;
-                    z = w;
-                }
-                else {
-                    x = Math.random() * 40 + 10;
-                    y = Math.random() * 40 + 10;
-                    z = Math.random() * 40 + 10;
-                }
-                let boxGeometry = new THREE.BoxGeometry(x, y, z);
-                // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
-                // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-                // for (let i = 0; i < 1; i++) {
-                this.object = new THREE.Mesh(boxGeometry, makeMaterial());
+                    if (random(1) > 7) {
+                        let w = Math.random() * 40 + 10;
+                        x = w;
+                        y = w;
+                        z = w;
+                    }
+                    else {
+                        x = Math.random() * 40 + 10;
+                        y = Math.random() * 40 + 10;
+                        z = Math.random() * 40 + 10;
+                    }
+                    let boxGeometry = new THREE.BoxGeometry(x, y, z);
+                    // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
+                    // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+                    // for (let i = 0; i < 1; i++) {
+                    this.object = new THREE.Mesh(boxGeometry, makeMaterial());
                 }
                 this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
@@ -195,15 +200,40 @@ void main()
             }
 
         }
-    
-        function makeMaterial() {
-            if (random(1) > 8) {
-                return shaderMaterials;
+
+        function initObjects(x) {
+            for (let i = 0; i < x; i++) {
+                let shape = new Piece(random(0));
+                //let cube = new Cube();
+                objects.push(shape);
+                // objects.push(cube);
+                shape.create();
+                //cube.create();
+                // console.log(objects[i]);
             }
-            else {
-                var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-                return material;
-            }
+        }
+
+        console.log(objects);
+
+        // objectArray[i].geometry.boundingSphere.radius
+        // objectArray[i].geometry.boundingSphere.center.x
+        // objectArray[i].position.x
+        function collisionDetection(point, shape) {
+            // console.log("SHAPE???????????? " , shape.object);
+            const distance = Math.sqrt(
+                (point.x - shape.object.position.x) * (point.x - shape.object.position.x) +
+                (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
+                (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
+            )
+            if (distance > 350) {
+                console.log("too far!");
+                shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
+                shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
+                shape.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
+            };
+
+            return distance < shape.object.geometry.boundingSphere.radius;
+            // we are using multiplications because is faster than calling Math.pow
         }
 
 
@@ -217,70 +247,11 @@ void main()
             vertexShader: document.getElementById('vertexShader').textContent
         });
 
-
-        var geometry = new THREE.SphereGeometry(50, 10, 25);
-        geometry.computeFaceNormals();
-        var sphere = new THREE.Mesh(geometry, shaderMaterials);
-        //sphere.color = [0,0,1];
-        sphere.position.x = 200;
-        sphere.position.y = 200;
-        sphere.position.z = 200;
-
-
-        //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-        sphere.geometry.computeBoundingSphere();
-        //objects.push(sphere);
-        console.log('HELO?', sphere);
-
-        scene.add(sphere);
-
-
-
-        for (let i = 0; i < 30; i++) {
-            let shape = new Piece(random(0));
-            //let cube = new Cube();
-            objects.push(shape);
-           // objects.push(cube);
-            shape.create();
-            //cube.create();
-            // console.log(objects[i]);
-        }
-
-
-        console.log(objects);
-
-        // objectArray[i].geometry.boundingSphere.radius
-        // objectArray[i].geometry.boundingSphere.center.x
-        // objectArray[i].position.x
-        function isPointInsideSphere(point, shape) {
-            // console.log("SHAPE???????????? " , shape.object);
-            const distance = Math.sqrt(
-                (point.x - shape.object.position.x) * (point.x - shape.object.position.x) +
-                (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
-                (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
-            )
-
-            if (distance > 350) {
-                console.log("too far!");
-                shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
-                shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
-                shape.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
-            };
-
-            return distance < shape.object.geometry.boundingSphere.radius;
-            // we are using multiplications because is faster than calling Math.pow
-        }
-
-
-
-
         var delta = 0;
         function render() {
             //sphere.rotateY(0.1);
             //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
             // customUniforms.x=Math.random()*1;
-
-
             delta += 0.03;
 
             // Update the uniform value for delta
@@ -290,9 +261,66 @@ void main()
             renderer.render(scene, camera);
         }
 
+        function animate() {
+            for (let i = 0; i < objects.length; i++) {
+                if (objects[i].rotateOnYAxis == true) {
+                    if (random(0) == true) {
+                        objects[i].object.rotateY(objects[i].rotateYSpeed);
+                    }
+                }
+                if (objects[i].rotateOnXAxis == true) {
+                    if (random(0) == true) {
+                        objects[i].object.rotateX(objects[i].rotateXSpeed);
+                    }
+                }
+                //console.log("object", objects[i]);
+                var collide = collisionDetection(cameraPosition, objects[i]);
+                if (collide == true) {
+                    //do something with collision
+                }
+
+                if (objects[i].verticalMovement == true) {
+                    if (random(0) == true) {
+                        objects[i].object.translateY(objects[i].verticalSpeed);
+                    }
+                }
+                if (objects[i].horizontalMovement == true) {
+                    if (random(0) == true) {
+                        objects[i].object.translateX(objects[i].horizontalSpeed);
+                    }
+                }
+                if (objects[i].depthMovement == true) {
+                    if (random(0) == true) {
+                        objects[i].object.translateZ(objects[i].depthSpeed);
+                    }
+                }
 
 
+            }
 
+            camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
+
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        
+
+        //TEST SPHERE
+        var geometry = new THREE.SphereGeometry(50, 10, 25);
+        geometry.computeFaceNormals();
+        var sphere = new THREE.Mesh(geometry, shaderMaterials);
+        //sphere.color = [0,0,1];
+        sphere.position.x = 200;
+        sphere.position.y = 200;
+        sphere.position.z = 200;
+        //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+        sphere.geometry.computeBoundingSphere();
+        //objects.push(sphere);
+        console.log('HELO?', sphere);
+        scene.add(sphere);
+
+        //KEY HANDLER
         function keyHandler(e) {
             switch (e.keyCode) {
                 case 83: // The 'S' key
@@ -335,54 +363,15 @@ void main()
                     cameraPosition.z -= 50;
                     break;
             }
-
         }
         document.addEventListener("keydown", keyHandler, false);
 
+        //Make and place objects
+        initObjects(30);
+
+        
 
 
-        function animate() {
-            for (let i = 0; i < objects.length; i++) {
-                if (objects[i].rotateOnYAxis == true) {
-                    if (random(0) == true) {
-                        objects[i].object.rotateY(objects[i].rotateYSpeed);
-                    }
-                }
-                if (objects[i].rotateOnXAxis == true) {
-                    if (random(0) == true) {
-                        objects[i].object.rotateX(objects[i].rotateXSpeed);
-                    }
-                }
-                //console.log("object", objects[i]);
-                var collide = isPointInsideSphere(cameraPosition, objects[i]);
-                if (collide == true) {
-                    //do something with collision
-                }
-
-                if (objects[i].verticalMovement == true) {
-                    if (random(0) == true) {
-                        objects[i].object.translateY(objects[i].verticalSpeed);
-                    }
-                }
-                if (objects[i].horizontalMovement == true) {
-                    if (random(0) == true) {
-                        objects[i].object.translateX(objects[i].horizontalSpeed);
-                    }
-                }
-                if (objects[i].depthMovement == true) {
-                    if (random(0) == true) {
-                        objects[i].object.translateZ(objects[i].depthSpeed);
-                    }
-                }
-
-
-            }
-
-            camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
-
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        }
         animate();
 
         render();
