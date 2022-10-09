@@ -1,3 +1,42 @@
+
+https://discourse.threejs.org/t/move-the-camera-forward-in-the-direction-its-facing/8364/5
+
+
+
+
+
+<!-- out float rand;  // Pass to the fragment shader
+
+uniform float xPosition;
+uniform float yPosition; -->
+
+<!-- // Used to get random numbers
+// Found here https://stackoverflow.com/questions/5149544/can-i-generate-a-random-number-inside-a-pixel-shader
+float random( vec2 p )
+{
+    vec2 K1 = vec2(
+        23.14069263277926, // e^pi (Gelfond's constant)
+        2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
+    );
+    return fract( cos( dot(p,K1) ) * 12345.6789 );
+} -->
+ 
+<!-- void main()
+{
+    // Grab a random number based on the position of the vertex
+    rand = random( vec2( xPosition, yPosition) );
+ 
+    // You need the "projectionMatrix * viewMatrix * modelMatrix" which is part of ShaderMaterial
+    gl_Position =  projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+    // Uncomment this and watch it DISAPPEAR
+//    gl_Position = vec4( position, 1.0 );
+} -->
+
+
+
+
+
+
 https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
 
 function isPointInsideSphere(point, sphere) {
