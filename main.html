@@ -9,32 +9,23 @@
     <canvas id="myCanvas" width="800" height="800"></canvas>
 
     <script type="x-shader/x-vertex" id="vertexShader">
-out float rand;  // Pass to the fragment shader
 
-uniform float xPosition;
-uniform float yPosition;
- 
-// Used to get random numbers
-// Found here https://stackoverflow.com/questions/5149544/can-i-generate-a-random-number-inside-a-pixel-shader
-float random( vec2 p )
-{
-    vec2 K1 = vec2(
-        23.14069263277926, // e^pi (Gelfond's constant)
-        2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
-    );
-    return fract( cos( dot(p,K1) ) * 12345.6789 );
-}
- 
-void main()
-{
-    // Grab a random number based on the position of the vertex
-    rand = random( vec2( xPosition, yPosition) );
- 
-    // You need the "projectionMatrix * viewMatrix * modelMatrix" which is part of ShaderMaterial
-    gl_Position =  projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
-    // Uncomment this and watch it DISAPPEAR
-//    gl_Position = vec4( position, 1.0 );
-}
+      
+        uniform float delta;
+
+        void main() 
+        {
+            // Can change the impact of delta here
+            float displacement = delta * .1;
+            // The vertex displacement is simply the sine of delta
+            vec3 p = position;
+            p += displacement*p;
+        
+            gl_Position =  projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+
+              
+        }
+
     </script>
 
     <script type="x-shader/x-vertex" id="fragShader">
@@ -115,6 +106,7 @@ void main()
         console.log(random(4));
 
 
+
         function Sphere() {
             this.rotateOnXAxis = random(0);
             if (this.rotateOnXAxis == true) {
@@ -182,18 +174,34 @@ void main()
         }
 
         function makeMaterial() {
-            var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-            return material;
+            if (random(1) > 8) {
+                return shaderMaterials;
+            } 
+            else {
+                var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+                 return material;
+            }
+           
         }
 
+
+        var customUniforms = {
+            delta: { value: 0 }
+        };
+        var shaderMaterials = new THREE.ShaderMaterial({
+            uniforms: customUniforms,
+            vertexShader: document.getElementById('vertexShader').textContent
+        });
 
 
         var geometry = new THREE.SphereGeometry(15, 32, 32);
         geometry.computeFaceNormals();
-        var sphere = new THREE.Mesh(geometry, makeMaterial());
-        sphere.position.x = 300;
-        sphere.position.y = 300;
-        sphere.position.z = 300;
+        var sphere = new THREE.Mesh(geometry, shaderMaterials);
+        //sphere.color = [0,0,1];
+        sphere.position.x = 200;
+        sphere.position.y = 200;
+        sphere.position.z = 200;
+
 
         //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
         sphere.geometry.computeBoundingSphere();
@@ -231,12 +239,17 @@ void main()
         }
 
 
-
+        var delta = 0;
         function render() {
             //sphere.rotateY(0.1);
             //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-
             // customUniforms.x=Math.random()*1;
+
+
+            delta += 0.03;
+
+            // Update the uniform value for delta
+            sphere.material.uniforms.delta.value = Math.sin(delta);
 
             requestAnimationFrame(render); // call it again!
             renderer.render(scene, camera);
@@ -297,12 +310,12 @@ void main()
             for (let i = 0; i < objects.length; i++) {
 
                 if (objects[i].rotateOnYAxis == true) {
-                    if(random(0)==true){
+                    if (random(0) == true) {
                         objects[i].object.rotateY(objects[i].rotateYSpeed);
                     }
                 }
                 if (objects[i].rotateOnXAxis == true) {
-                    if(random(0)==true){
+                    if (random(0) == true) {
                         objects[i].object.rotateX(objects[i].rotateXSpeed);
                     }
                 }
