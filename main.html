@@ -38,6 +38,104 @@ void main()
 
     <script type="module">
 
+
+        // var movementSpeed = 80;
+        // var totalObjects = 1000;
+        // var objectSize = 10;
+        // var sizeRandomness = 4000;
+        // var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF];
+
+        // var dirs = [];
+        // var parts = [];
+        // var container = document.createElement('div');
+        // document.body.appendChild(container);
+
+
+
+        // container.appendChild(renderer.domElement);
+        // parts.push(new ExplodeAnimation(0, 0));
+
+
+        // var pCount = parts.length;
+        // while (pCount--) {
+        //     parts[pCount].update();
+        // }
+
+        // window.addEventListener('mousedown', onclick, false);
+
+
+
+        // function onclick() {
+        //     event.preventDefault();
+        //     parts.push(new ExplodeAnimation((Math.random() * sizeRandomness) - (sizeRandomness / 2), (Math.random() * sizeRandomness) - (sizeRandomness / 2)));
+        // // }
+
+
+
+        // function ExplodeAnimation(x, y) {
+        //     var geometry = new THREE.Geometry();
+
+        //     for (i = 0; i < totalObjects; i++) {
+        //         var vertex = new THREE.Vector3();
+        //         vertex.x = x;
+        //         vertex.y = y;
+        //         vertex.z = 0;
+
+        //         geometry.vertices.push(vertex);
+        //         dirs.push({ x: (Math.random() * movementSpeed) - (movementSpeed / 2), y: (Math.random() * movementSpeed) - (movementSpeed / 2), z: (Math.random() * movementSpeed) - (movementSpeed / 2) });
+        //     }
+        //     var material = new THREE.ParticleBasicMaterial({ size: objectSize, color: colors[Math.round(Math.random() * colors.length)] });
+        //     var particles = new THREE.ParticleSystem(geometry, material);
+
+        //     this.object = particles;
+        //     this.status = true;
+
+        //     this.xDir = (Math.random() * movementSpeed) - (movementSpeed / 2);
+        //     this.yDir = (Math.random() * movementSpeed) - (movementSpeed / 2);
+        //     this.zDir = (Math.random() * movementSpeed) - (movementSpeed / 2);
+
+        //     scene.add(this.object);
+
+        //     this.update = function () {
+        //         if (this.status == true) {
+        //             var pCount = totalObjects;
+        //             while (pCount--) {
+        //                 var particle = this.object.geometry.vertices[pCount]
+        //                 particle.y += dirs[pCount].y;
+        //                 particle.x += dirs[pCount].x;
+        //                 particle.z += dirs[pCount].z;
+        //             }
+        //             this.object.geometry.verticesNeedUpdate = true;
+        //         }
+        //     }
+
+        // }
+
+
+
+
+        var movementSpeeds = 80;
+        var totalObjects = 1000;
+        var objectSize = 10;
+        var sizeRandomness = 4000;
+        var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF];
+        /////////////////////////////////
+        var dirs = [];
+        var parts = [];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         let objects = [];
         var xLookAt = 0;
         var yLookAt = 0;
@@ -217,16 +315,17 @@ void main()
                 (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
                 (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
             )
-            if (distance > 350) {
+            if (distance > 350 || distance < shape.object.geometry.boundingSphere.radius) {
                 console.log("too far!");
+                console.log("collided");
+                parts.push(new ExplodeAnimation(shape.object.position.x,shape.object.position.y,shape.object.position.z ));
                 shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
                 shape.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
             };
-
-            return distance < shape.object.geometry.boundingSphere.radius;
             // we are using multiplications because is faster than calling Math.pow
         }
+
 
 
         var customUniforms = {
@@ -245,7 +344,6 @@ void main()
             //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
             // customUniforms.x=Math.random()*1;
             delta += 0.03;
-
             // Update the uniform value for delta
             sphere.material.uniforms.delta.value = Math.sin(delta);
 
@@ -257,10 +355,7 @@ void main()
         function executeMovements() {
             for (let i = 0; i < objects.length; i++) {
                 //console.log("object", objects[i]);
-                var collide = collisionDetection(cameraPosition, objects[i]);
-                if (collide == true) {
-                    //do something with collision
-                }
+                collisionDetection(cameraPosition, objects[i]);
 
 
 
@@ -294,13 +389,60 @@ void main()
         }
 
 
+
+        function ExplodeAnimation(x, y, z) {
+            console.log("made it in explode");
+            var geometry = new THREE.Geometry();
+
+            for (let i = 0; i < totalObjects; i++) {
+                var vertex = new THREE.Vector3();
+                vertex.x = x;
+                vertex.y = y;
+                vertex.z = z;
+
+                geometry.vertices.push(vertex);
+                dirs.push({ x: (Math.random() * movementSpeeds) - (movementSpeeds / 2), y: (Math.random() * movementSpeeds) - (movementSpeeds / 2), z: (Math.random() * movementSpeeds) - (movementSpeeds / 2) });
+            }
+            var material = new THREE.PointsMaterial({ size: objectSize, color: 0xFFFFFF });
+            var particles = new THREE.Points(geometry, material);
+
+            this.object = particles;
+            this.status = true;
+
+            this.xDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);
+            this.yDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);
+            this.zDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);
+
+            scene.add(this.object);
+            console.log(this.object);
+
+            this.update = function () {
+                if (this.status == true) {
+                    var pCount = totalObjects;
+                    while (pCount--) {
+                        var particle = this.object.geometry.vertices[pCount]
+                        particle.y += dirs[pCount].y;
+                        particle.x += dirs[pCount].x;
+                        particle.z += dirs[pCount].z;
+                    }
+                    this.object.geometry.verticesNeedUpdate = true;
+                }
+            }
+
+        }
+
+
+
         function animate() {
+            var pCount = parts.length;
+            while (pCount--) {
+                parts[pCount].update();
+            }
             executeMovements();
             camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
-
 
 
         //TEST SPHERE
@@ -316,6 +458,20 @@ void main()
         //objects.push(sphere);
         console.log('HELO?', sphere);
         scene.add(sphere);
+
+
+
+
+        
+        
+        window.addEventListener('mousedown', onclick, false);
+       // window.addEventListener('resize', onWindowResize, false);
+
+        function onclick() {
+            console.log("clicked");
+            event.preventDefault();
+            parts.push(new ExplodeAnimation(0,0,0));
+        }
 
         //KEY HANDLER
         function keyHandler(e) {
@@ -333,45 +489,53 @@ void main()
                     yLookAt += 50;
                     break;
                 case 38: // The 'up arrow' key
-                    camera.position.y += 50;
-                    cameraPosition.y += 50;
+                    camera.position.y += 10;
+                    cameraPosition.y += 10;
                     break;
                 case 40: // The 'down arrow' key
-                    camera.position.y -= 50;
-                    cameraPosition.y -= 50;
+                    camera.position.y -= 10;
+                    cameraPosition.y -= 10;
                     break;
 
                 case 37: // The 'left arrow' key
-                    camera.position.x -= 50;
-                    cameraPosition.x -= 50;
+                    camera.position.x -= 10;
+                    cameraPosition.x -= 10;
                     break;
 
                 case 39: // The 'right arrow' key
-                    camera.position.x += 50;
-                    cameraPosition.x += 50;
+                    camera.position.x += 10;
+                    cameraPosition.x += 10;
                     break;
 
                 case 90: // The 'z arrow' key
-                    camera.position.z += 50;
-                    cameraPosition.z += 50;
+                    camera.position.z += 10;
+                    cameraPosition.z += 10;
                     break;
                 case 88: // The 'down arrow' key
-                    camera.position.z -= 50;
-                    cameraPosition.z -= 50;
+                    camera.position.z -= 10;
+                    cameraPosition.z -= 10;
                     break;
             }
         }
         document.addEventListener("keydown", keyHandler, false);
 
         //Make and place objects
-        initObjects(60);
+        initObjects(100);
 
 
 
 
         animate();
 
+        parts.push(new ExplodeAnimation(0, 0));
         render();
+
+
+
+
+
+
+
     </script>
 </body>
 
