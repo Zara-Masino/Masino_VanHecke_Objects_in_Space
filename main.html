@@ -125,6 +125,29 @@ void main()
                 }
             }
 
+            this.verticalMovement = random(0);
+            if (this.verticalMovement == true) {
+                this.verticalSpeed = Math.random() * .5;
+                if (random(0) == false) {
+                    this.verticalSpeed *= -1;
+                }
+            }
+            this.horizontalMovement = random(0);
+            if (this.horizontalMovement == true) {
+                this.horizontalSpeed = Math.random() * .5;
+                if (random(0) == false) {
+                    this.verticalSpeed *= -1;
+                }
+            }
+
+            this.depthMovement = random(0);
+            if (this.depthMovement == true) {
+                this.depthSpeed = Math.random() * .5;
+                if (random(0) == false) {
+                    this.depthSpeed *= -1;
+                }
+            }
+
             // Set up the geometries
 
             this.create = function () {
@@ -171,6 +194,31 @@ void main()
                     this.rotateYSpeed *= -1;
                 }
             }
+
+            this.verticalMovement = random(0);
+            if (this.verticalMovement == true) {
+                this.verticalSpeed = Math.random() * .5;
+                if (random(0) == false) {
+                    this.verticalSpeed *= -1;
+                }
+            }
+            this.horizontalMovement = random(0);
+            if (this.horizontalMovement == true) {
+                this.horizontalSpeed = Math.random() * .5;
+                if (random(0) == false) {
+                    this.verticalSpeed *= -1;
+                }
+            }
+
+            this.depthMovement = random(0);
+            if (this.depthMovement == true) {
+                this.depthSpeed = Math.random() * .5;
+                if (random(0) == false) {
+                    this.depthSpeed *= -1;
+                }
+            }
+
+
 
             this.create = function () {
                 let x,y,z;
@@ -338,7 +386,6 @@ void main()
 
         function animate() {
             for (let i = 0; i < objects.length; i++) {
-
                 if (objects[i].rotateOnYAxis == true) {
                     if (random(0) == true) {
                         objects[i].object.rotateY(objects[i].rotateYSpeed);
@@ -354,6 +401,24 @@ void main()
                 if (collide == true) {
                     //do something with collision
                 }
+
+                if (objects[i].verticalMovement == true) {
+                    if (random(0) == true) {
+                        objects[i].object.translateY(objects[i].verticalSpeed);
+                    }
+                }
+                if (objects[i].horizontalMovement == true) {
+                    if (random(0) == true) {
+                        objects[i].object.translateX(objects[i].horizontalSpeed);
+                    }
+               }
+               if (objects[i].depthMovement == true) {
+                    if (random(0) == true) {
+                        objects[i].object.translateZ(objects[i].depthSpeed);
+                    }
+               }
+
+
             }
 
             camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
