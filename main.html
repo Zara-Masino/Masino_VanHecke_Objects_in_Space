@@ -111,43 +111,35 @@ void main()
         }
 
 
+        function movementSpeed(constant) {
+            var speed = Math.random() * constant;
+            if (random(0) == false) {
+                speed *= -1;
+            }
+            return speed;
+        }
+
+
         function Piece(shape) {
             this.rotateOnXAxis = random(0);
             if (this.rotateOnXAxis == true) {
-                this.rotateXSpeed = Math.random() * .12;
-                if (random(0) == false) {
-                    this.rotateXSpeed *= -1;
-                }
+                this.rotateXSpeed = movementSpeed(.12);
             }
             this.rotateOnYAxis = random(0);
             if (this.rotateOnYAxis == true) {
-                this.rotateYSpeed = Math.random() * .12;
-                if (random(0) == false) {
-                    this.rotateYSpeed *= -1;
-                }
+                this.rotateYSpeed = movementSpeed(.12);
             }
-
             this.verticalMovement = random(0);
             if (this.verticalMovement == true) {
-                this.verticalSpeed = Math.random() * .5;
-                if (random(0) == false) {
-                    this.verticalSpeed *= -1;
-                }
+                this.verticalSpeed = movementSpeed(.5);
             }
             this.horizontalMovement = random(0);
             if (this.horizontalMovement == true) {
-                this.horizontalSpeed = Math.random() * .5;
-                if (random(0) == false) {
-                    this.verticalSpeed *= -1;
-                }
+                this.horizontalSpeed = movementSpeed(.5);
             }
-
             this.depthMovement = random(0);
             if (this.depthMovement == true) {
-                this.depthSpeed = Math.random() * .5;
-                if (random(0) == false) {
-                    this.depthSpeed *= -1;
-                }
+                this.depthSpeed = movementSpeed(.5);
             }
 
             // Set up the geometries
@@ -261,8 +253,18 @@ void main()
             renderer.render(scene, camera);
         }
 
-        function animate() {
+
+        function executeMovements() {
             for (let i = 0; i < objects.length; i++) {
+                //console.log("object", objects[i]);
+                var collide = collisionDetection(cameraPosition, objects[i]);
+                if (collide == true) {
+                    //do something with collision
+                }
+
+
+
+
                 if (objects[i].rotateOnYAxis == true) {
                     if (random(0) == true) {
                         objects[i].object.rotateY(objects[i].rotateYSpeed);
@@ -273,12 +275,6 @@ void main()
                         objects[i].object.rotateX(objects[i].rotateXSpeed);
                     }
                 }
-                //console.log("object", objects[i]);
-                var collide = collisionDetection(cameraPosition, objects[i]);
-                if (collide == true) {
-                    //do something with collision
-                }
-
                 if (objects[i].verticalMovement == true) {
                     if (random(0) == true) {
                         objects[i].object.translateY(objects[i].verticalSpeed);
@@ -294,17 +290,18 @@ void main()
                         objects[i].object.translateZ(objects[i].depthSpeed);
                     }
                 }
-
-
             }
+        }
 
+
+        function animate() {
+            executeMovements();
             camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
-
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
 
-        
+
 
         //TEST SPHERE
         var geometry = new THREE.SphereGeometry(50, 10, 25);
@@ -367,9 +364,9 @@ void main()
         document.addEventListener("keydown", keyHandler, false);
 
         //Make and place objects
-        initObjects(30);
+        initObjects(60);
 
-        
+
 
 
         animate();

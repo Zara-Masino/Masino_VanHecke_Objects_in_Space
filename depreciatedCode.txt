@@ -65,3 +65,39 @@
         //     }
 
         // }
+
+
+
+
+                    // this.rotateOnXAxis = random(0);
+            // if (this.rotateOnXAxis == true) {
+            //     this.rotateXSpeed = Math.random() * .12;
+            //     if (random(0) == false) {
+            //         this.rotateXSpeed *= -1;
+            //     }
+            // }
+            // this.rotateOnYAxis = random(0);
+            // if (this.rotateOnYAxis == true) {
+            //     this.rotateYSpeed = Math.random() * .12;
+            //     if (random(0) == false) {
+            //         this.rotateYSpeed *= -1;
+            //     }
+            // }
+
+                        this.verticalMovement = random(0);
+            if (this.verticalMovement == true) {
+                this.verticalSpeed = Math.random() * .5;
+                if (random(0) == false) {
+                    this.verticalSpeed *= -1;
+                }
+            }
+
+
+            
+        // function rotateSpeed() {
+        //     var speed = Math.random() * .12;
+        //     if (random(0) == false) {
+        //         speed *= -1;
+        //     }
+        //     return speed;
+        // }
