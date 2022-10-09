@@ -1,7 +1,8 @@
 
 https://discourse.threejs.org/t/move-the-camera-forward-in-the-direction-its-facing/8364/5
 
-
+maybe helpful for delta time
+https://subscription.packtpub.com/book/web-development/9781783981182/1/ch01lvl1sec15/determining-the-frame-rate-for-your-scene 
 
 
 
