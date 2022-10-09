@@ -312,10 +312,19 @@ void main()
                 (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
                 (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
             )
+
+            if(distance > 350){
+                console.log("too far!");
+                shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
+                shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
+                shape.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
+            };
+
             return distance < shape.object.geometry.boundingSphere.radius;
             // we are using multiplications because is faster than calling Math.pow
-
         }
+
+        
 
 
         var delta = 0;
