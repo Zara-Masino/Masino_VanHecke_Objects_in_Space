@@ -10,7 +10,7 @@
 
     <script type="x-shader/x-vertex" id="vertexShader">
 
-      
+
         uniform float delta;
         uniform float alpha;
 
@@ -46,7 +46,7 @@ void main()
         var yLookAt = 0;
         var zLookAt = 0;
         import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
-        
+
 
         // float rand = Math.random()*1;
         var scene = new THREE.Scene();
@@ -63,7 +63,6 @@ void main()
         renderer.setPixelRatio(document.getElementById('myCanvas').devicePixelRatio);
         // If you want the render to span the window, uncomment this
         renderer.setSize(window.innerWidth, window.innerHeight);
-
 
 
         // The "ShaderMaterial" defines and calculates projectionMatrix, viewMatrix, and modelMatrix behind the scenes
@@ -107,9 +106,7 @@ void main()
         console.log(random(1));
         console.log(random(4));
 
-
-
-        function Sphere() {
+        function Piece(shape) {
             this.rotateOnXAxis = random(0);
             if (this.rotateOnXAxis == true) {
                 this.rotateXSpeed = Math.random() * .12;
@@ -117,7 +114,6 @@ void main()
                     this.rotateXSpeed *= -1;
                 }
             }
-
             this.rotateOnYAxis = random(0);
             if (this.rotateOnYAxis == true) {
                 this.rotateYSpeed = Math.random() * .12;
@@ -150,25 +146,46 @@ void main()
             }
 
             // Set up the geometries
-
             this.create = function () {
-                let x,y,z;
+                if (shape == true) {
+                    let x, y, z;
+                    if (random(1) > 7) {
+                        let w = Math.random() * 50 + 5;
+                        x = Math.random() * 20 + 5;
+                        y = w;
+                        z = w;
+                    }
+                    else {
+                        x = Math.random() * 20 + 5;
+                        y = Math.random() * 3 + 3;
+                        z = Math.random() * 3 + 3;
+                    }
+
+
+                    var geometry = new THREE.SphereGeometry(x, y, z);
+                    geometry.computeFaceNormals();
+                    this.object = new THREE.Mesh(geometry, makeMaterial());
+                }
+                else {
+
+                    let x, y, z;
                 if (random(1) > 7) {
-                    let w = Math.random()*50 +5;
-                    x = Math.random()*20+5;
+                    let w = Math.random() * 40 + 10;
+                    x = w;
                     y = w;
                     z = w;
                 }
                 else {
-                    x = Math.random()*20 +5;
-                    y = Math.random()*3 +3;
-                    z = Math.random()*3 +3;
+                    x = Math.random() * 40 + 10;
+                    y = Math.random() * 40 + 10;
+                    z = Math.random() * 40 + 10;
                 }
-
-
-                var geometry = new THREE.SphereGeometry(x, y, z);
-                geometry.computeFaceNormals();
-                this.object = new THREE.Mesh(geometry, makeMaterial());
+                let boxGeometry = new THREE.BoxGeometry(x, y, z);
+                // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
+                // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+                // for (let i = 0; i < 1; i++) {
+                this.object = new THREE.Mesh(boxGeometry, makeMaterial());
+                }
                 this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
                 this.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
@@ -178,93 +195,23 @@ void main()
             }
 
         }
-
-        function Cube() {
-            this.rotateOnXAxis = random(0);
-            if (this.rotateOnXAxis == true) {
-                this.rotateXSpeed = Math.random() * .12;
-                if (random(0) == false) {
-                    this.rotateXSpeed *= -1;
-                }
-            }
-
-            this.rotateOnYAxis = random(0);
-            if (this.rotateOnYAxis == true) {
-                this.rotateYSpeed = Math.random() * .12;
-                if (random(0) == false) {
-                    this.rotateYSpeed *= -1;
-                }
-            }
-
-            this.verticalMovement = random(0);
-            if (this.verticalMovement == true) {
-                this.verticalSpeed = Math.random() * .5;
-                if (random(0) == false) {
-                    this.verticalSpeed *= -1;
-                }
-            }
-            this.horizontalMovement = random(0);
-            if (this.horizontalMovement == true) {
-                this.horizontalSpeed = Math.random() * .5;
-                if (random(0) == false) {
-                    this.verticalSpeed *= -1;
-                }
-            }
-
-            this.depthMovement = random(0);
-            if (this.depthMovement == true) {
-                this.depthSpeed = Math.random() * .5;
-                if (random(0) == false) {
-                    this.depthSpeed *= -1;
-                }
-            }
-
-
-
-            this.create = function () {
-                let x,y,z;
-                if (random(1) > 7) {
-                    let w = Math.random()*40 +10;
-                    x = w;
-                    y = w;
-                    z = w;
-                }
-                else {
-                    x = Math.random()*40 +10;
-                    y = Math.random()*40 +10;
-                    z = Math.random()*40 +10;
-                }
-                let boxGeometry = new THREE.BoxGeometry(x, y, z);
-                // let boxMaterial = new THREE.MeshBasicMaterial({ color: 0xf00fff });
-                // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-                // for (let i = 0; i < 1; i++) {
-                this.object = new THREE.Mesh(boxGeometry, makeMaterial());
-                this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
-                this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
-                this.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
-                this.object.geometry.computeBoundingSphere();
-                scene.add(this.object);
-
-            }
-
-        }
-
+    
         function makeMaterial() {
             if (random(1) > 8) {
                 return shaderMaterials;
-            } 
+            }
             else {
                 var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-                 return material;
+                return material;
             }
         }
 
 
         var customUniforms = {
             delta: { value: 0 },
-            alpha: {value: Math.random()*1}
+            alpha: { value: Math.random() * 1 }
         };
-        
+
         var shaderMaterials = new THREE.ShaderMaterial({
             uniforms: customUniforms,
             vertexShader: document.getElementById('vertexShader').textContent
@@ -290,12 +237,12 @@ void main()
 
 
         for (let i = 0; i < 30; i++) {
-            let sphere = new Sphere();
-            let cube = new Cube();
-            objects.push(sphere);
-            objects.push(cube);
-            sphere.create();
-            cube.create();
+            let shape = new Piece(random(0));
+            //let cube = new Cube();
+            objects.push(shape);
+           // objects.push(cube);
+            shape.create();
+            //cube.create();
             // console.log(objects[i]);
         }
 
@@ -313,7 +260,7 @@ void main()
                 (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
             )
 
-            if(distance > 350){
+            if (distance > 350) {
                 console.log("too far!");
                 shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
@@ -324,7 +271,7 @@ void main()
             // we are using multiplications because is faster than calling Math.pow
         }
 
-        
+
 
 
         var delta = 0;
@@ -421,12 +368,12 @@ void main()
                     if (random(0) == true) {
                         objects[i].object.translateX(objects[i].horizontalSpeed);
                     }
-               }
-               if (objects[i].depthMovement == true) {
+                }
+                if (objects[i].depthMovement == true) {
                     if (random(0) == true) {
                         objects[i].object.translateZ(objects[i].depthSpeed);
                     }
-               }
+                }
 
 
             }
