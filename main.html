@@ -141,6 +141,7 @@ void main()
         var yLookAt = 0;
         var zLookAt = 0;
         import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
+       import { PointerLockControls } from 'http://cs.merrimack.edu/~stuetzlec/three.js-master/examples/jsm/controls/PointerLockControls.js';
 
 
         // float rand = Math.random()*1;
@@ -520,10 +521,7 @@ void main()
         document.addEventListener("keydown", keyHandler, false);
 
         //Make and place objects
-        initObjects(100);
-
-
-
+        initObjects(20);
 
         animate();
 
