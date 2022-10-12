@@ -1,4 +1,8 @@
 
+https://threejs.org/examples/?q=pointer#misc_controls_pointerlock
+above might be helpful for mouse control again
+
+
 https://discourse.threejs.org/t/move-the-camera-forward-in-the-direction-its-facing/8364/5
 
 maybe helpful for delta time
