@@ -38,6 +38,8 @@ void main()
 
     <script type="module">
 
+
+
         var movementSpeeds = 80;
         var totalObjects = 1000;
         var objectSize = 10;
@@ -46,12 +48,27 @@ void main()
         /////////////////////////////////
         var dirs = [];
         var parts = [];
+
+
+
+
+        let prevTime = performance.now();
+        const velocity = new THREE.Vector3();
+
+
+
+
+
+
+
+
+
         let objects = [];
         var xLookAt = 0;
         var yLookAt = 0;
         var zLookAt = 0;
         import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
-       import { PointerLockControls } from 'http://cs.merrimack.edu/~stuetzlec/three.js-master/examples/jsm/controls/PointerLockControls.js';
+        import { PointerLockControls } from 'http://cs.merrimack.edu/~stuetzlec/three.js-master/examples/jsm/controls/PointerLockControls.js';
 
 
         // float rand = Math.random()*1;
@@ -68,6 +85,22 @@ void main()
         renderer.setPixelRatio(document.getElementById('myCanvas').devicePixelRatio);
         // If you want the render to span the window, uncomment this
         renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+
+        var controls = new PointerLockControls(camera, document.body);
+
+        document.addEventListener('click', function () {
+            controls.lock();
+            console.log(controls.isLocked);
+
+        });
+
+
+
+        scene.add(controls.getObject());
+
+
 
 
         // The "ShaderMaterial" defines and calculates projectionMatrix, viewMatrix, and modelMatrix behind the scenes
@@ -226,10 +259,10 @@ void main()
                 (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
                 (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
             )
-            if (distance > 350 || distance < shape.object.geometry.boundingSphere.radius) {
+            if (distance > 300 || distance < shape.object.geometry.boundingSphere.radius) {
                 console.log("too far!");
                 console.log("collided");
-                parts.push(new ExplodeAnimation(shape.object.position.x,shape.object.position.y,shape.object.position.z ));
+                parts.push(new ExplodeAnimation(shape.object.position.x, shape.object.position.y, shape.object.position.z));
                 shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
                 shape.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
@@ -345,13 +378,30 @@ void main()
 
 
         function animate() {
+
+
+
             var pCount = parts.length;
             while (pCount--) {
                 parts[pCount].update();
             }
             executeMovements();
-            camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
+            //camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
             requestAnimationFrame(animate);
+            const time = performance.now();
+
+            if (controls.isLocked === true) {
+                var direction = new THREE.Vector3();
+                camera.getWorldDirection(direction);
+                camera.position.add(direction);
+
+                const delta = (time - prevTime) / 1000;
+                controls.moveRight(- velocity.x * delta);
+                controls.moveForward(- velocity.z * delta);
+                controls.getObject().position.y += (velocity.y * delta); // new behavior
+            }
+
+            prevTime = time;
             renderer.render(scene, camera);
         }
 
@@ -373,15 +423,15 @@ void main()
 
 
 
-        
-        
+
+
         window.addEventListener('mousedown', onclick, false);
-       // window.addEventListener('resize', onWindowResize, false);
+        // window.addEventListener('resize', onWindowResize, false);
 
         function onclick() {
             console.log("clicked");
             event.preventDefault();
-            parts.push(new ExplodeAnimation(0,0,0));
+            parts.push(new ExplodeAnimation(0, 0, 0));
         }
 
         //KEY HANDLER
@@ -431,7 +481,7 @@ void main()
         document.addEventListener("keydown", keyHandler, false);
 
         //Make and place objects
-        initObjects(20);
+        initObjects(25);
 
         animate();
 
