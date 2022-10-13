@@ -306,10 +306,6 @@ void main()
             for (let i = 0; i < objects.length; i++) {
                 //console.log("object", objects[i]);
                 collisionDetection(cameraPosition, objects[i]);
-
-
-
-
                 if (objects[i].rotateOnYAxis == true) {
                     if (random(0) == true) {
                         objects[i].object.rotateY(objects[i].rotateYSpeed);
@@ -384,13 +380,15 @@ void main()
 
 
         function animate() {
-
-
-
             var pCount = parts.length;
             while (pCount--) {
                 parts[pCount].update();
             }
+            //console.log(cameraPosition);
+            cameraPosition.x = camera.position.x;
+            cameraPosition.y = camera.position.y;
+            cameraPosition.z = camera.position.z;
+
             executeMovements();
             //camera.lookAt(new THREE.Vector3(xLookAt, yLookAt, zLookAt));
             requestAnimationFrame(animate);
