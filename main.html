@@ -259,10 +259,16 @@ void main()
                 (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
                 (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
             )
-            if (distance > 300 || distance < shape.object.geometry.boundingSphere.radius) {
-                console.log("too far!");
+
+            if(distance < shape.object.geometry.boundingSphere.radius){
                 console.log("collided");
                 parts.push(new ExplodeAnimation(shape.object.position.x, shape.object.position.y, shape.object.position.z));
+                shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
+                shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
+                shape.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
+            }
+            if (distance > 300) {
+                console.log("too far!");
                 shape.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 shape.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
                 shape.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
