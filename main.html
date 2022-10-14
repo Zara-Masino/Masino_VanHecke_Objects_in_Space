@@ -239,7 +239,7 @@ void main()
                     geometry.computeFaceNormals();
                     this.object = new THREE.Mesh(geometry, makeMaterial());
                 }
-                else {
+                else if (shape == false){
 
                     let x, y, z;
                     if (random(1) > 7) {
@@ -273,7 +273,7 @@ void main()
             }
         }
 
-        console.log(objects);
+        console.log("objects ", objects);
 
 
 
@@ -421,9 +421,9 @@ void main()
         }
 
 
-        var tshape = new Piece(random(0));
-        objects.push(tshape);
-        tshape.create();
+        // var tshape = new Piece(random(0));
+        // objects.push(tshape);
+        // tshape.create();
 
 
         function animate() {
@@ -443,20 +443,28 @@ void main()
 
             tdelta += 0.03;
             // Update the uniform value for delta
-            sphere.material.uniforms.delta.value = Math.sin(tdelta);
+           // sphere.material.uniforms.delta.value = Math.sin(tdelta);
 
 
             requestAnimationFrame(animate);
-            const time = performance.now();
-            const delta = (time - prevTime) / 1000;
+            
 
             if (controls.isLocked === true) {
-                console.log("delta ", delta);
-                console.log("direction ", direction);
-                console.log("both ", direction * delta);
+                const time = performance.now();
+                const delta = (time - prevTime) / 1000;
+               // console.log("delta ", delta);
+               // console.log("direction before math ", direction);
+               // console.log("both ", direction * delta);
                 //CAMERA MOVES HERE
+                var speed = 45;
+                direction.x *= delta * speed;
+                direction.y *= delta * speed;
+                direction.z *= delta * speed;
+               // console.log("direction after math ", direction)
+               // console.log("camera position before ", camera.position);
                 camera.position.add(direction);
-                console.log(controls);
+               // console.log("camera position after ", camera.position);
+                //console.log(controls);
                 for (let i = 0; i < objects.length; i++) {
                     collisionDetection(cameraPosition, objects[i]);
                     tooFar(cameraPosition, objects[i]);
@@ -470,31 +478,32 @@ void main()
 
 
 
+                prevTime = time;
 
                 // controls.moveRight(- velocity.x * delta);
                 // controls.moveForward(- velocity.z * delta);
                 // controls.getObject().position.y += (velocity.y * delta); // new behavior
             }
 
-            prevTime = time;
+           
             renderer.render(scene, camera);
             //renderer.render(scene, backCamera);
         }
 
 
         //TEST SPHERE
-        var geometry = new THREE.SphereGeometry(50, 10, 25);
-        geometry.computeFaceNormals();
-        var sphere = new THREE.Mesh(geometry, shaderMaterials);
-        //sphere.color = [0,0,1];
-        sphere.position.x = 200;
-        sphere.position.y = 200;
-        sphere.position.z = 200;
-        //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-        sphere.geometry.computeBoundingSphere();
-        //objects.push(sphere);
-        console.log('HELO?', sphere);
-        scene.add(sphere);
+        // var geometry = new THREE.SphereGeometry(50, 10, 25);
+        // geometry.computeFaceNormals();
+        // var sphere = new THREE.Mesh(geometry, shaderMaterials);
+        // //sphere.color = [0,0,1];
+        // sphere.position.x = 200;
+        // sphere.position.y = 200;
+        // sphere.position.z = 200;
+        // //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+        // sphere.geometry.computeBoundingSphere();
+        // //objects.push(sphere);
+        // console.log('HELO?', sphere);
+        // scene.add(sphere);
 
 
 
