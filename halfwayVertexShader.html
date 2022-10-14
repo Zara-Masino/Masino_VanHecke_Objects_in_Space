@@ -13,22 +13,23 @@
 
         uniform float delta;
         uniform float alpha;
+        uniform float x;
+        uniform float y;
         out float rand;
 
 
-
         float random( vec2 p )
-        {
-            vec2 K1 = vec2(
-                23.14069263277926, // e^pi (Gelfond's constant)
-                 2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
-            );
-            return fract( cos( dot(p,K1) ) * 12345.6789 );
-        }
+{
+    vec2 K1 = vec2(
+        23.14069263277926, // e^pi (Gelfond's constant)
+         2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
+    );
+    return fract( cos( dot(p,K1) ) * 12345.6789 );
+}
 
         void main() 
         {
-            rand = random( vec2(2, 1) );
+            rand = sin(x);
             // Can change the impact of delta here
             float displacement = delta * alpha;
             // The vertex displacement is simply the sine of delta
@@ -45,14 +46,14 @@ in float rand;
  
 void main()
 { 
-    gl_FragColor = vec4(1.0, rand, 1.0-rand, 1.0);
+    gl_FragColor = vec4(1.0, 1.0-rand, rand, 1.0);
 }
     </script>
 
     <script type="module">
 
 
-
+        // rand = random( vec2( x, y) );
         var movementSpeeds = 80;
         var totalObjects = 1000;
         var objectSize = 10;
@@ -94,28 +95,7 @@ void main()
         camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
         scene.add(camera);
 
-
-        // var backCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        // var backCameraPosition = new THREE.Vector3(300, 300, 300)
-        // backCamera.position.set(300, 300, 300);
-        // backCamera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
-        // scene.add(backCamera);
-
-
-
         var renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
-        // const left = Math.floor(window.innerWidth * .7);
-        // const bottom = Math.floor(window.innerHeight * .5);
-        // const width = Math.floor(window.innerWidth * .5);
-        // const height = Math.floor(window.innerHeight * .5);
-
-        // renderer.setViewport(left, bottom, width, height);
-        // renderer.setScissor(left, bottom, width, height);
-        // renderer.setScissorTest(true);
-
-
-
-
         renderer.setClearColor(0x000000);
         // If you want this to span the window, instead of using the myCanvas object, use the window object
         renderer.setPixelRatio(document.getElementById('myCanvas').devicePixelRatio);
@@ -128,6 +108,8 @@ void main()
 
         document.addEventListener('click', function () {
             controls.lock();
+            //console.log(controls.isLocked);
+
         });
 
 
@@ -218,6 +200,23 @@ void main()
                 this.depthSpeed = movementSpeed(.5);
             }
 
+            this.createShader = function () {
+
+                this.customUniforms = {
+                    delta: { value:  Math.random() * 1},
+                    alpha: { value: Math.random() * 1 },
+                    x: { value: Math.random() * 1 },
+                    y: { value: Math.random() * 1 }
+                };
+
+                this.shaderMaterials = new THREE.ShaderMaterial({
+                    uniforms: this.customUniforms,
+                    vertexShader: document.getElementById('vertexShader').textContent,
+                    fragmentShader: document.getElementById("fragShader").innerText
+                });
+
+            }
+
             // Set up the geometries
             this.create = function () {
                 if (shape == true) {
@@ -237,7 +236,7 @@ void main()
 
                     var geometry = new THREE.SphereGeometry(x, y, z);
                     geometry.computeFaceNormals();
-                    this.object = new THREE.Mesh(geometry, makeMaterial());
+                    this.object = new THREE.Mesh(geometry, this.shaderMaterials);
                 }
                 else {
 
@@ -254,7 +253,7 @@ void main()
                         z = Math.random() * 40 + 10;
                     }
                     let boxGeometry = new THREE.BoxGeometry(x, y, z);
-                    this.object = new THREE.Mesh(boxGeometry, makeMaterial());
+                    this.object = new THREE.Mesh(boxGeometry, this.shaderMaterials);
                 }
                 this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
@@ -269,6 +268,7 @@ void main()
             for (let i = 0; i < x; i++) {
                 let shape = new Piece(random(0));
                 objects.push(shape);
+                shape.createShader();
                 shape.create();
             }
         }
@@ -296,7 +296,7 @@ void main()
             shape.object.position.z = cameraPosition.z + (z);
 
 
-            //console.log("increments of relocation ", x, y, z)
+            console.log("increments of relocation ", x, y, z)
 
         }
 
@@ -314,7 +314,7 @@ void main()
         function tooFar(point, shape) {
             let distance = calcDistance(point, shape);
             if (distance > 300) {
-                //console.log("too far!");
+                console.log("too far!");
                 relocateShape(shape);
             };
 
@@ -333,17 +333,6 @@ void main()
         }
 
 
-
-        var customUniforms = {
-            delta: { value: 0 },
-            alpha: { value: Math.random() * 1 }
-        };
-
-        var shaderMaterials = new THREE.ShaderMaterial({
-            uniforms: customUniforms,
-            vertexShader: document.getElementById('vertexShader').textContent,
-            fragmentShader: document.getElementById('fragShader').textContent
-        });
 
         var tdelta = 0;
 
@@ -438,26 +427,22 @@ void main()
             for (let i = 0; i < objects.length; i++) {
                 collisionDetection(cameraPosition, objects[i]);
                 tooFar(cameraPosition, objects[i]);
-            }
+                // objects[i].customUniforms.delta.value += .03;
+                // objects[i].customUniforms.delta.value = Math.sin(objects[i].customUniforms.delta.value);
+         }
 
 
-            tdelta += 0.03;
+           // tdelta += 0.03;
             // Update the uniform value for delta
-            sphere.material.uniforms.delta.value = Math.sin(tdelta);
+            //sphere.material.uniforms.delta.value = Math.sin(tdelta);
+
 
 
             requestAnimationFrame(animate);
             const time = performance.now();
 
-            const delta = (time - prevTime) / 1000;
-
             if (controls.isLocked === true) {
-                console.log("delta ", delta);
-                console.log("direction ", direction);
-                console.log("both ", direction * delta);
-                //CAMERA MOVES HERE
                 camera.position.add(direction);
-                console.log(controls);
                 for (let i = 0; i < objects.length; i++) {
                     collisionDetection(cameraPosition, objects[i]);
                     tooFar(cameraPosition, objects[i]);
@@ -467,35 +452,34 @@ void main()
                 cameraPosition.y = camera.position.y;
                 cameraPosition.z = camera.position.z;
 
-                // console.log("camera ", cameraPosition.x, cameraPosition.y, cameraPosition.z);
+                console.log("camera ", cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 
 
-
-                // controls.moveRight(- velocity.x * delta);
-                // controls.moveForward(- velocity.z * delta);
-                // controls.getObject().position.y += (velocity.y * delta); // new behavior
+                const delta = (time - prevTime) / 1000;
+                controls.moveRight(- velocity.x * delta);
+                controls.moveForward(- velocity.z * delta);
+                controls.getObject().position.y += (velocity.y * delta); // new behavior
             }
 
             prevTime = time;
             renderer.render(scene, camera);
-            //renderer.render(scene, backCamera);
         }
 
 
         //TEST SPHERE
-        var geometry = new THREE.SphereGeometry(50, 10, 25);
-        geometry.computeFaceNormals();
-        var sphere = new THREE.Mesh(geometry, shaderMaterials);
-        //sphere.color = [0,0,1];
-        sphere.position.x = 200;
-        sphere.position.y = 200;
-        sphere.position.z = 200;
-        //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-        sphere.geometry.computeBoundingSphere();
-        //objects.push(sphere);
-        console.log('HELO?', sphere);
-        scene.add(sphere);
+        // var geometry = new THREE.SphereGeometry(50, 10, 25);
+        // geometry.computeFaceNormals();
+        // var sphere = new THREE.Mesh(geometry, shaderMaterials);
+        // //sphere.color = [0,0,1];
+        // sphere.position.x = 200;
+        // sphere.position.y = 200;
+        // sphere.position.z = 200;
+        // //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+        // sphere.geometry.computeBoundingSphere();
+        // //objects.push(sphere);
+        // console.log('HELO?', sphere);
+        // scene.add(sphere);
 
 
 
