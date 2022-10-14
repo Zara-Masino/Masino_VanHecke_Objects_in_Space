@@ -53,8 +53,8 @@ void main()
 
 
 
-        var movementSpeeds = 80;
-        var totalObjects = 1000;
+        var movementSpeeds = 40;
+        var totalObjects = 500;
         var objectSize = 10;
         var sizeRandomness = 4000;
         var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF];
@@ -62,19 +62,10 @@ void main()
         var dirs = [];
         var parts = [];
 
-
         var direction = new THREE.Vector3();
-
-
 
         let prevTime = performance.now();
         const velocity = new THREE.Vector3();
-
-
-
-
-
-
 
 
 
@@ -383,6 +374,7 @@ void main()
         function ExplodeAnimation(x, y, z) {
             // console.log("made it in explode");
             var geometry = new THREE.Geometry();
+            var sphereGeom = new THREE.SphereGeometry();
 
             for (let i = 0; i < totalObjects; i++) {
                 var vertex = new THREE.Vector3();
@@ -475,8 +467,6 @@ void main()
                 cameraPosition.z = camera.position.z;
 
                 // console.log("camera ", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
-
 
                 prevTime = time;
 
