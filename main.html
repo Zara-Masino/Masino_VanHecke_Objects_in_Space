@@ -13,9 +13,23 @@
 
         uniform float delta;
         uniform float alpha;
+        uniform float x;
+        uniform float y;
+        out float rand;
+
+
+        float random( vec2 p )
+{
+    vec2 K1 = vec2(
+        23.14069263277926, // e^pi (Gelfond's constant)
+         2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
+    );
+    return fract( cos( dot(p,K1) ) * 12345.6789 );
+}
 
         void main() 
         {
+            rand = sin(x);
             // Can change the impact of delta here
             float displacement = delta * alpha;
             // The vertex displacement is simply the sine of delta
@@ -32,14 +46,14 @@ in float rand;
  
 void main()
 { 
-    gl_FragColor = vec4(1.0, rand, 1.0-rand, 1.0);
+    gl_FragColor = vec4(1.0, 1.0-rand, rand, 1.0);
 }
     </script>
 
     <script type="module">
 
 
-
+        // rand = random( vec2( x, y) );
         var movementSpeeds = 80;
         var totalObjects = 1000;
         var objectSize = 10;
@@ -186,6 +200,23 @@ void main()
                 this.depthSpeed = movementSpeed(.5);
             }
 
+            this.createShader = function () {
+
+                this.customUniforms = {
+                    delta: { value: Math.random() * 1 },
+                    alpha: { value: Math.random() * 1 },
+                    x: { value: Math.random() * 1 },
+                    y: { value: Math.random() * 1 }
+                };
+
+                this.shaderMaterials = new THREE.ShaderMaterial({
+                    uniforms: this.customUniforms,
+                    vertexShader: document.getElementById('vertexShader').textContent,
+                    fragmentShader: document.getElementById("fragShader").innerText
+                });
+
+            }
+
             // Set up the geometries
             this.create = function () {
                 if (shape == true) {
@@ -205,7 +236,7 @@ void main()
 
                     var geometry = new THREE.SphereGeometry(x, y, z);
                     geometry.computeFaceNormals();
-                    this.object = new THREE.Mesh(geometry, makeMaterial());
+                    this.object = new THREE.Mesh(geometry, this.shaderMaterials);
                 }
                 else {
 
@@ -222,7 +253,7 @@ void main()
                         z = Math.random() * 40 + 10;
                     }
                     let boxGeometry = new THREE.BoxGeometry(x, y, z);
-                    this.object = new THREE.Mesh(boxGeometry, makeMaterial());
+                    this.object = new THREE.Mesh(boxGeometry, this.shaderMaterials);
                 }
                 this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
                 this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
@@ -237,6 +268,7 @@ void main()
             for (let i = 0; i < x; i++) {
                 let shape = new Piece(random(0));
                 objects.push(shape);
+                shape.createShader();
                 shape.create();
             }
         }
@@ -245,10 +277,10 @@ void main()
 
 
 
-        function makeCoord(max, min){
-            let randomNumber = (Math.random()*max)+min;
-            if (random(0)==true){
-                randomNumber*=-1;
+        function makeCoord(max, min) {
+            let randomNumber = (Math.random() * max) + min;
+            if (random(0) == true) {
+                randomNumber *= -1;
             }
             return randomNumber;
         }
@@ -263,7 +295,7 @@ void main()
             shape.object.position.y = cameraPosition.y + (y);
             shape.object.position.z = cameraPosition.z + (z);
 
-            
+
             console.log("increments of relocation ", x, y, z)
 
         }
@@ -301,16 +333,6 @@ void main()
         }
 
 
-
-        var customUniforms = {
-            delta: { value: 0 },
-            alpha: { value: Math.random() * 1 }
-        };
-
-        var shaderMaterials = new THREE.ShaderMaterial({
-            uniforms: customUniforms,
-            vertexShader: document.getElementById('vertexShader').textContent
-        });
 
         var tdelta = 0;
 
@@ -405,7 +427,15 @@ void main()
             for (let i = 0; i < objects.length; i++) {
                 collisionDetection(cameraPosition, objects[i]);
                 tooFar(cameraPosition, objects[i]);
+ 
             }
+
+
+            tdelta += 0.03;
+            // Update the uniform value for delta
+            //sphere.material.uniforms.delta.value = Math.sin(tdelta);
+
+
 
             requestAnimationFrame(animate);
             const time = performance.now();
@@ -422,9 +452,6 @@ void main()
                 cameraPosition.z = camera.position.z;
 
                 console.log("camera ", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-                tdelta += 0.03;
-                // Update the uniform value for delta
-                sphere.material.uniforms.delta.value = Math.sin(tdelta);
 
 
 
@@ -440,18 +467,18 @@ void main()
 
 
         //TEST SPHERE
-        var geometry = new THREE.SphereGeometry(50, 10, 25);
-        geometry.computeFaceNormals();
-        var sphere = new THREE.Mesh(geometry, shaderMaterials);
-        //sphere.color = [0,0,1];
-        sphere.position.x = 200;
-        sphere.position.y = 200;
-        sphere.position.z = 200;
-        //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-        sphere.geometry.computeBoundingSphere();
-        //objects.push(sphere);
-        console.log('HELO?', sphere);
-        scene.add(sphere);
+        // var geometry = new THREE.SphereGeometry(50, 10, 25);
+        // geometry.computeFaceNormals();
+        // var sphere = new THREE.Mesh(geometry, shaderMaterials);
+        // //sphere.color = [0,0,1];
+        // sphere.position.x = 200;
+        // sphere.position.y = 200;
+        // sphere.position.z = 200;
+        // //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
+        // sphere.geometry.computeBoundingSphere();
+        // //objects.push(sphere);
+        // console.log('HELO?', sphere);
+        // scene.add(sphere);
 
 
 
