@@ -57,6 +57,25 @@ void main()
 
         let mouseX = 0, mouseY = 0;
 
+        // float rand = Math.random()*1;
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+        var cameraPosition = new THREE.Vector3(300, 300, 300)
+        camera.position.set(300, 300, 300);
+        camera.lookAt(new THREE.Vector3(1.0, 1.0, 1.0));
+        scene.add(camera);
+
+
+
+        var renderer;
+        const left = Math.floor(window.innerWidth * 0.0);
+        const bottom = Math.floor(window.innerHeight * .05);
+        const width = Math.floor(window.innerWidth * .7);
+        const height = Math.floor(window.innerHeight * 1.0);
+        
+        let windowWidth, windowHeight;
+
+
         const views = [
             {
 
@@ -84,7 +103,7 @@ void main()
             {
                 //Frontward facing camera
                 left: 0.0,
-                bottom: 0.05,
+                bottom: 0.0,
                 width: 0.7,
                 height: 1.0,
                 leftWindow: Math.floor(window.innerWidth * 0.0),
@@ -104,6 +123,78 @@ void main()
                 }
             }
         ];
+
+        function initScene() {
+
+            for (let ii = 0; ii < views.length; ++ii) {
+
+                const view = views[ii];
+                const camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
+                camera.position.fromArray(view.eye);
+                camera.up.fromArray(view.up);
+                view.camera = camera;
+
+            }
+            renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
+            renderer.setClearColor(0x000000);
+            // If you want this to span the window, instead of using the myCanvas object, use the window object
+            renderer.setPixelRatio(document.getElementById('myCanvas').devicePixelRatio);
+            // If you want the render to span the window, uncomment this
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+
+        function updateSize() {
+
+            if (windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
+
+                windowWidth = window.innerWidth;
+                windowHeight = window.innerHeight;
+
+                renderer.setSize(windowWidth, windowHeight);
+
+            }
+
+        }
+
+        initScene();
+
+        function render() {
+
+            updateSize();
+
+            for (let ii = 0; ii < views.length; ++ii) {
+
+                const view = views[ii];
+                const camera = view.camera;
+
+                view.updateCamera(camera, scene, mouseX, mouseY);
+
+                const left = Math.floor(windowWidth * view.left);
+                const bottom = Math.floor(windowHeight * view.bottom);
+                const width = Math.floor(windowWidth * view.width);
+                const height = Math.floor(windowHeight * view.height);
+
+                renderer.setViewport(left, bottom, width, height);
+                renderer.setScissor(left, bottom, width, height);
+                renderer.setScissorTest(true);
+                renderer.setClearColor(view.background);
+
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+
+                renderer.render(scene, camera);
+
+            }
+
+        }
+
+
+
+
+
+
+
 
 
 
@@ -130,42 +221,24 @@ void main()
         var zLookAt = 0;
 
 
-        // float rand = Math.random()*1;
-        var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        var cameraPosition = new THREE.Vector3(300, 300, 300)
-        camera.position.set(300, 300, 300);
-        camera.lookAt(new THREE.Vector3(1.0, 1.0, 1.0));
-        scene.add(camera);
+
+
+        // renderer.setViewport(views[1].left, views[1].bottom, views[1].width, views[1].height);
+        // renderer.setScissor(views[1].leftWindow, views[1].bottomWindow, views[1].widthWindow, views[1].heightWindow);
+        // renderer.setScissorTest(true);
 
 
 
+        // const backLeft = Math.floor(window.innerWidth * .7);
+        // const backRight = Math.floor(window.innerHeight * 0.0);
+        // const backWidth = Math.floor(window.innerWidth * .5);
+        // const backHeight = Math.floor(window.innerHeight * 1.0);
 
-
-
-        var renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
-        const left = Math.floor(window.innerWidth * 0.0);
-        const bottom = Math.floor(window.innerHeight * .05);
-        const width = Math.floor(window.innerWidth * .7);
-        const height = Math.floor(window.innerHeight * 1.0);
-
-
-        renderer.setViewport(views[1].left, views[1].bottom, views[1].width, views[1].height);
-        renderer.setScissor(views[1].leftWindow, views[1].bottomWindow, views[1].widthWindow, views[1].heightWindow);
-        renderer.setScissorTest(true);
-
-
-
-        const backLeft = Math.floor(window.innerWidth * .7);
-        const backRight = Math.floor(window.innerHeight * 0.0);
-        const backWidth = Math.floor(window.innerWidth * .5);
-        const backHeight = Math.floor(window.innerHeight * 1.0);
-
-        var backCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        var backCameraPosition = new THREE.Vector3(300, 300, 300)
-        backCamera.position.set(300, 300, 300);
-        backCamera.lookAt(new THREE.Vector3(-1.0, -1.0, -1.0));
-        scene.add(backCamera);
+        // var backCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+        // var backCameraPosition = new THREE.Vector3(300, 300, 300)
+        // backCamera.position.set(300, 300, 300);
+        // backCamera.lookAt(new THREE.Vector3(-1.0, -1.0, -1.0));
+        // scene.add(backCamera);
 
 
         // renderer.setViewport(views[0].left, views[0].right,  views[0].width,  views[0].height);
@@ -174,12 +247,6 @@ void main()
 
 
 
-
-        renderer.setClearColor(0x000000);
-        // If you want this to span the window, instead of using the myCanvas object, use the window object
-        renderer.setPixelRatio(document.getElementById('myCanvas').devicePixelRatio);
-        // If you want the render to span the window, uncomment this
-        renderer.setSize(window.innerWidth, window.innerHeight);
 
 
 
@@ -494,7 +561,7 @@ void main()
 
         function animate() {
 
-
+            render();
 
             // for (let ii = 0; ii < views.length; ++ii) {
 
@@ -520,7 +587,7 @@ void main()
 
             // }
 
-
+                
 
             camera.getWorldDirection(direction);
 
