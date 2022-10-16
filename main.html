@@ -57,7 +57,6 @@ void main()
 
         let mouseX = 0, mouseY = 0;
 
-        // float rand = Math.random()*1;
         var scene = new THREE.Scene();
         // var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
         var cameraPosition = new THREE.Vector3(300, 300, 300)
@@ -68,59 +67,60 @@ void main()
 
 
         var renderer;
+        var hasShader;
+        var tdelta = 0;
         const left = Math.floor(window.innerWidth * 0.0);
         const bottom = Math.floor(window.innerHeight * .05);
         const width = Math.floor(window.innerWidth * .7);
         const height = Math.floor(window.innerHeight * 1.0);
-        
+
         let windowWidth, windowHeight;
 
 
         const views = [
             {
-
                 //backwards
-                left: 0.7,
+                left: 0.5,
                 bottom: 0.0,
-                width: 0.5,
+                width: 0.7,
                 height: 1.0,
-                leftWindow: Math.floor(window.innerWidth * 0.7),
+                leftWindow: Math.floor(window.innerWidth * 0.5),
                 bottomWindow: Math.floor(window.innerHeight * 0.0),
-                widthWindow: Math.floor(window.innerWidth * 0.5),
+                widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
-                background: new THREE.Color(0.5, 0.5, 0.7),
+                background: new THREE.Color(0.7, 0.7, 0.7),
                 eye: [300, 300, 300],
                 up: [0, 1, 0],
-                fov: 30,
-                updateCamera: function (backCamera, scene, mouseX) {
+                fov: 100,
+                // updateCamera: function (backCamera, scene, mouseX) {
 
-                    backCamera.position.x += mouseX * 0.05;
-                    backCamera.position.x = Math.max(Math.min(backCamera.position.x, 2000), - 2000);
-                    backCamera.lookAt(scene.position);
+                //     backCamera.position.x += mouseX * 0.05;
+                //     backCamera.position.x = Math.max(Math.min(backCamera.position.x, 2000), - 2000);
+                //     backCamera.lookAt(scene.position);
 
-                }
+                // }
             },
             {
                 //Frontward facing camera
                 left: 0.0,
                 bottom: 0.0,
-                width: 0.7,
+                width: 0.5, //.7
                 height: 1.0,
                 leftWindow: Math.floor(window.innerWidth * 0.0),
                 bottomWindow: Math.floor(window.innerHeight * 0.05),
                 widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
-                background: new THREE.Color(0.7, 0.5, 0.5),
+                background: new THREE.Color(0.0, 0.0, 0.0),
                 eye: [300, 300, 300],
                 up: [0, 0, 1],
-                fov: 45,
-                updateCamera: function (camera, scene, mouseX) {
+                fov: 100,
+                // updateCamera: function (camera, scene, mouseX) {
 
-                    camera.position.x -= mouseX * 0.05;
-                    camera.position.x = Math.max(Math.min(camera.position.x, 2000), - 2000);
-                    camera.lookAt(camera.position.clone().setY(0));
+                //     camera.position.x -= mouseX * 0.05;
+                //     camera.position.x = Math.max(Math.min(camera.position.x, 2000), - 2000);
+                //     camera.lookAt(camera.position.clone().setY(0));
 
-                }
+                // }
             }
         ];
 
@@ -145,16 +145,11 @@ void main()
         }
 
         function updateSize() {
-
             if (windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
-
                 windowWidth = window.innerWidth;
                 windowHeight = window.innerHeight;
-
                 renderer.setSize(windowWidth, windowHeight);
-
             }
-
         }
 
         initScene();
@@ -190,20 +185,6 @@ void main()
         }
 
 
-
-        function lookAwayFrom (camera, lookAtOfOtherCamera){
-
-            var v = new THREE.Vector3();
-            v.subVectors(camera.position, lookAtOfOtherCamera.position).add(camera.position);
-            camera.lookAt(v);
-
-        }
-
-
-
-
-
-
         var movementSpeeds = 40;
         var totalObjects = 500;
         var objectSize = 10;
@@ -227,35 +208,6 @@ void main()
         var zLookAt = 0;
 
 
-
-
-        // renderer.setViewport(views[1].left, views[1].bottom, views[1].width, views[1].height);
-        // renderer.setScissor(views[1].leftWindow, views[1].bottomWindow, views[1].widthWindow, views[1].heightWindow);
-        // renderer.setScissorTest(true);
-
-
-
-        // const backLeft = Math.floor(window.innerWidth * .7);
-        // const backRight = Math.floor(window.innerHeight * 0.0);
-        // const backWidth = Math.floor(window.innerWidth * .5);
-        // const backHeight = Math.floor(window.innerHeight * 1.0);
-
-        // var backCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        // var backCameraPosition = new THREE.Vector3(300, 300, 300)
-        // backCamera.position.set(300, 300, 300);
-        // backCamera.lookAt(new THREE.Vector3(-1.0, -1.0, -1.0));
-        // scene.add(backCamera);
-
-
-        // renderer.setViewport(views[0].left, views[0].right,  views[0].width,  views[0].height);
-        // renderer.setScissor(views[0].leftWindow, views[0].bottomWindow, views[0].widthWindow, views[0].heightWindow);
-        // renderer.setScissorTest(true);
-
-
-
-
-
-
         var controls = new PointerLockControls(views[1].camera, document.body);
 
         document.addEventListener('click', function () {
@@ -263,27 +215,6 @@ void main()
         });
 
 
-
-       // scene.add(controls.getObject());
-
-
-
-
-        // The "ShaderMaterial" defines and calculates projectionMatrix, viewMatrix, and modelMatrix behind the scenes
-        //   This means that you do not need to define them or alter them, but DO need to include them in your
-        //   vertex shader.
-        // If you want to do everything manually, you would use the RawShaderMaterial object
-        // var customUniforms = {
-        //     xPosition: {x: Math.random()*255},
-        //     yPosition: {y: Math.random()*255}
-        // };
-        // var material = new THREE.ShaderMaterial({
-        //     uniforms: customUniforms,
-        //     vertexShader: document.getElementById("vertexShader").innerText,
-        //     fragmentShader: document.getElementById("fragShader").innerText
-        // });
-        //var material = new THREE.MeshPhongMaterial({ color: 0x1562ff, emissive: 0x072534, flatShading: true });
-        // }
 
         function random(type) {
             let randomNumber = Math.round(Math.random() * 10);
@@ -295,21 +226,14 @@ void main()
                     return false;
                 }
             }
-            else {
-                let array = [];
-                for (let i = 0; i < type; i++) {
-                    let newN = Math.round(Math.random() * 10);
-                    array.push(newN);
-                }
-                return array;
+            else if(type == 1){
+                return randomNumber;
             }
         }
-        console.log(random(0));
-        console.log(random(1));
-        console.log(random(4));
 
         function makeMaterial() {
             if (random(1) > 8) {
+                hasShader = true;
                 return shaderMaterials;
             }
             else {
@@ -339,22 +263,22 @@ void main()
             }
             this.verticalMovement = random(0);
             if (this.verticalMovement == true) {
-                this.verticalSpeed = movementSpeed(.5);
+                this.verticalSpeed = movementSpeed(2);
             }
             this.horizontalMovement = random(0);
             if (this.horizontalMovement == true) {
-                this.horizontalSpeed = movementSpeed(.5);
+                this.horizontalSpeed = movementSpeed(2);
             }
             this.depthMovement = random(0);
             if (this.depthMovement == true) {
-                this.depthSpeed = movementSpeed(.5);
+                this.depthSpeed = movementSpeed(2);
             }
 
             // Set up the geometries
             this.create = function () {
                 if (shape == true) {
                     let x, y, z;
-                    if (random(1) > 7) {
+                    if (random(1) > 8) {
                         let w = Math.random() * 50 + 5;
                         x = Math.random() * 20 + 5;
                         y = w;
@@ -408,8 +332,6 @@ void main()
             }
         }
 
-        console.log("objects ", objects);
-
 
 
         function makeCoord(max, min) {
@@ -423,17 +345,15 @@ void main()
         function relocateShape(shape) {
 
             let x = makeCoord(200, 10);
-            let y = makeCoord(100, 10);
+            let y = makeCoord(200, 10);
             let z = makeCoord(200, 10);
 
             shape.object.position.x = cameraPosition.x + (x);
             shape.object.position.y = cameraPosition.y + (y);
             shape.object.position.z = cameraPosition.z + (z);
-
-
-            //console.log("increments of relocation ", x, y, z)
-
         }
+
+
 
 
         function calcDistance(point, shape) {
@@ -446,10 +366,49 @@ void main()
         }
 
 
+        function calcLookAt(cameraPos, otherLookAt) {
+            //  console.log("camerapos ", cameraPos);
+            // console.log("first camera lookat ", otherLookAt);
+            // console.log("camera position ", cameraPos);
+            let xDistance = Math.abs(cameraPos.x - otherLookAt.x);
+            let yDistance = Math.abs(cameraPos.y - otherLookAt.y);
+            let zDistance = Math.abs(cameraPos.z - otherLookAt.z);
+
+            let newX, newY, newZ;
+            if (cameraPos.x < otherLookAt.x) {
+                newX = cameraPos.x - xDistance;
+            }
+            else {
+                newX = cameraPos.x + xDistance;
+            }
+
+
+            if (cameraPos.y < otherLookAt.y) {
+                newY = cameraPos.y - yDistance;
+            }
+            else {
+                newY = cameraPos.y + yDistance;
+            }
+
+
+            if (cameraPos.z < otherLookAt.z) {
+                newZ = cameraPos.z - zDistance;
+            }
+            else {
+                newZ = cameraPos.z + zDistance;
+            }
+
+            //console.log("x y and z ", newX, newY, newZ);
+            let nowLookAt = new THREE.Vector3(newX, newY, newZ);
+            // console.log("second camera lookat ", nowLookAt);
+            return nowLookAt;
+        }
+
+
+
         function tooFar(point, shape) {
             let distance = calcDistance(point, shape);
             if (distance > 300) {
-                //console.log("too far!");
                 relocateShape(shape);
             };
 
@@ -459,14 +418,10 @@ void main()
         function collisionDetection(point, shape) {
             let distance = calcDistance(point, shape);
             if (distance < shape.object.geometry.boundingSphere.radius) {
-                //  console.log("collided");
                 parts.push(new ExplodeAnimation(shape.object.position.x, shape.object.position.y, shape.object.position.z));
                 relocateShape(shape);
             }
-
-            // we are using multiplications because is faster than calling Math.pow
         }
-
 
 
         var customUniforms = {
@@ -480,11 +435,9 @@ void main()
             fragmentShader: document.getElementById('fragShader').textContent
         });
 
-        var tdelta = 0;
 
         function executeMovements() {
             for (let i = 0; i < objects.length; i++) {
-                //console.log("object", objects[i]);
                 if (objects[i].rotateOnYAxis == true) {
                     if (random(0) == true) {
                         objects[i].object.rotateY(objects[i].rotateYSpeed);
@@ -516,9 +469,7 @@ void main()
 
 
         function ExplodeAnimation(x, y, z) {
-            // console.log("made it in explode");
             var geometry = new THREE.Geometry();
-            var sphereGeom = new THREE.SphereGeometry();
 
             for (let i = 0; i < totalObjects; i++) {
                 var vertex = new THREE.Vector3();
@@ -531,7 +482,6 @@ void main()
             }
 
             var colorsRand = Math.round(Math.random() * 17)
-            console.log('random color', colorsRand);
             var material = new THREE.PointsMaterial({ size: objectSize, color: colors[colorsRand] });
             var particles = new THREE.Points(geometry, material);
 
@@ -559,41 +509,9 @@ void main()
 
         }
 
-
-        // var tshape = new Piece(random(0));
-        // objects.push(tshape);
-        // tshape.create();
-
-
         function animate() {
 
             render();
-
-            // for (let ii = 0; ii < views.length; ++ii) {
-
-            //     const view = views[ii];
-            //     const camera = view.camera;
-
-            //     view.updateCamera(camera, scene, mouseX, mouseY);
-
-            //     const left = Math.floor(windowWidth * view.left);
-            //     const bottom = Math.floor(windowHeight * view.bottom);
-            //     const width = Math.floor(windowWidth * view.width);
-            //     const height = Math.floor(windowHeight * view.height);
-
-            //     renderer.setViewport(left, bottom, width, height);
-            //     renderer.setScissor(left, bottom, width, height);
-            //     renderer.setScissorTest(true);
-            //     renderer.setClearColor(view.background);
-
-            //     camera.aspect = width / height;
-            //     camera.updateProjectionMatrix();
-
-            //     renderer.render(scene, camera);
-
-            // }
-
-                
 
             views[1].camera.getWorldDirection(direction);
 
@@ -602,7 +520,6 @@ void main()
                 parts[pCount].update();
             }
             // console.log(views[1].camera, "camera 1");
-            
             // console.log(cameraPosition.y, "camera positoin 1");
 
             executeMovements();
@@ -613,9 +530,11 @@ void main()
 
 
             tdelta += 0.03;
-            // Update the uniform value for delta
-            // sphere.material.uniforms.delta.value = Math.sin(tdelta);
-            objects[index].object.material.uniforms.delta.value = Math.sin(tdelta);
+
+            //slight chance of breakage. fix later
+            if (hasShader == true) {
+                objects[index].object.material.uniforms.delta.value = Math.sin(tdelta);
+            }
 
             requestAnimationFrame(animate);
 
@@ -623,11 +542,10 @@ void main()
             if (controls.isLocked === true) {
                 const time = performance.now();
                 const delta = (time - prevTime) / 1000;
-                // console.log("delta ", delta);
                 // console.log("direction before math ", direction);
                 // console.log("both ", direction * delta);
                 //CAMERA MOVES HERE
-                var speed = 45;
+                var speed = 100;
                 direction.x *= delta * speed;
                 direction.y *= delta * speed;
                 direction.z *= delta * speed;
@@ -636,85 +554,43 @@ void main()
                 views[1].camera.position.add(direction);
                 // console.log("camera position after ", camera.position);
                 //console.log(controls);
-                
-                for (let i = 0; i < objects.length; i++) {
-                    collisionDetection(cameraPosition, objects[i]);
-                    tooFar(cameraPosition, objects[i]);
-                }
 
-                
-                console.log("direction", direction)
+                //console.log("direction", direction)
                 cameraPosition.x = views[1].camera.position.x;
                 cameraPosition.y = views[1].camera.position.y;
                 cameraPosition.z = views[1].camera.position.z;
 
-                // cameraPosition.x = views[0].camera.position.x;
-                // cameraPosition.y = views[0].camera.position.y;
-                // cameraPosition.z = views[0].camera.position.z;
+                views[0].camera.position.x = cameraPosition.x;
+                views[0].camera.position.y = cameraPosition.y;
+                views[0].camera.position.z = cameraPosition.z;
+
+                //  console.log("front camera " , views[1].camera.position);
+                // console.log("back camera " , views[0].camera.position);
+                // console.log("direction should change ", direction);
+                // console.log(views[0].camera);
+                //views[0].camera.lookAt(direction);
+                let newLook = calcLookAt(cameraPosition, direction);
+                // console.log("back camera lookat " , newlook);
+                views[0].camera.lookAt(newLook);
+
+
                 //lookAwayFrom(views[0].camera,direction);
-               // transform.rotation= Quaternion.LookRotation(transform.position - camera.position);
-
-                
-               // console.log(views[1], "views 1 after");
-
+                // transform.rotation= Quaternion.LookRotation(transform.position - camera.position);
                 // console.log("camera ", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
                 prevTime = time;
-
-                // controls.moveRight(- velocity.x * delta);
-                // controls.moveForward(- velocity.z * delta);
-                // controls.getObject().position.y += (velocity.y * delta); // new behavior
             }
 
 
-            renderer.render(scene, views[1].camera);
-            // renderer.render(scene, backCamera);
+            //renderer.render(scene, views[0].camera);
+            //renderer.render(scene, views[1].camera);
             //renderer.render(scene, backCamera);
         }
 
 
-        //TEST SPHERE
-        // var geometry = new THREE.SphereGeometry(50, 10, 25);
-        // geometry.computeFaceNormals();
-        // var sphere = new THREE.Mesh(geometry, shaderMaterials);
-        // //sphere.color = [0,0,1];
-        // sphere.position.x = 200;
-        // sphere.position.y = 200;
-        // sphere.position.z = 200;
-        // //sphere.material.uniforms.xPosition.x = .5 +Math.sin(100)*.5;
-        // sphere.geometry.computeBoundingSphere();
-        // //objects.push(sphere);
-        // console.log('HELO?', sphere);
-        // scene.add(sphere);
-
-
-
-
-
-
-        window.addEventListener('mousedown', onclick, false);
-        // window.addEventListener('resize', onWindowResize, false);
-
-        function onclick() {
-            console.log("clicked");
-            event.preventDefault();
-            parts.push(new ExplodeAnimation(0, 0, 0));
-        }
-
-
         //Make and place objects
-        initObjects(100);
-
-        animate();
-
+        initObjects(200);
         parts.push(new ExplodeAnimation(0, 0));
-        //render();
-
-
-
-
-
-
+        animate();
 
     </script>
 </body>
