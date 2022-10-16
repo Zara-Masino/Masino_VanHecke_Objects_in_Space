@@ -88,7 +88,7 @@ void main()
                 bottomWindow: Math.floor(window.innerHeight * 0.0),
                 widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
-                background: new THREE.Color(0.7, 0.7, 0.7),
+                background: new THREE.Color(0.1, 0.1, 0.7),
                 eye: [300, 300, 300],
                 up: [0, 1, 0],
                 fov: 100,
@@ -226,7 +226,7 @@ void main()
                     return false;
                 }
             }
-            else if(type == 1){
+            else if (type == 1) {
                 return randomNumber;
             }
         }
@@ -238,6 +238,11 @@ void main()
             }
             else {
                 var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+                //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                material.blending = THREE.CustomBlending;
+                material.blendEquation = THREE.MaxEquation; //default
+                material.blendSrc = THREE.SrcAlphaFactor; //default
+                material.blendDst = THREE.OneMinusSrcAlphaFactor; //default
                 return material;
             }
         }
