@@ -59,11 +59,11 @@ void main()
 
         // float rand = Math.random()*1;
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+        // var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
         var cameraPosition = new THREE.Vector3(300, 300, 300)
-        camera.position.set(300, 300, 300);
-        camera.lookAt(new THREE.Vector3(1.0, 1.0, 1.0));
-        scene.add(camera);
+        // camera.position.set(300, 300, 300);
+        // camera.lookAt(new THREE.Vector3(1.0, 1.0, 1.0));
+        // scene.add(camera);
 
 
 
@@ -89,7 +89,7 @@ void main()
                 widthWindow: Math.floor(window.innerWidth * 0.5),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
                 background: new THREE.Color(0.5, 0.5, 0.7),
-                eye: [0, 300, 1800],
+                eye: [300, 300, 300],
                 up: [0, 1, 0],
                 fov: 30,
                 updateCamera: function (backCamera, scene, mouseX) {
@@ -111,7 +111,7 @@ void main()
                 widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
                 background: new THREE.Color(0.7, 0.5, 0.5),
-                eye: [0, 1800, 0],
+                eye: [300, 300, 300],
                 up: [0, 0, 1],
                 fov: 45,
                 updateCamera: function (camera, scene, mouseX) {
@@ -168,7 +168,7 @@ void main()
                 const view = views[ii];
                 const camera = view.camera;
 
-                view.updateCamera(camera, scene, mouseX, mouseY);
+                //view.updateCamera(camera, scene, mouseX, mouseY);
 
                 const left = Math.floor(windowWidth * view.left);
                 const bottom = Math.floor(windowHeight * view.bottom);
@@ -191,7 +191,13 @@ void main()
 
 
 
+        function lookAwayFrom (camera, lookAtOfOtherCamera){
 
+            var v = new THREE.Vector3();
+            v.subVectors(camera.position, lookAtOfOtherCamera.position).add(camera.position);
+            camera.lookAt(v);
+
+        }
 
 
 
@@ -250,7 +256,7 @@ void main()
 
 
 
-        var controls = new PointerLockControls(camera, document.body);
+        var controls = new PointerLockControls(views[1].camera, document.body);
 
         document.addEventListener('click', function () {
             controls.lock();
@@ -258,7 +264,7 @@ void main()
 
 
 
-        scene.add(controls.getObject());
+       // scene.add(controls.getObject());
 
 
 
@@ -382,9 +388,9 @@ void main()
                     let boxGeometry = new THREE.BoxGeometry(x, y, z);
                     this.object = new THREE.Mesh(boxGeometry, makeMaterial());
                 }
-                this.object.position.x = (Math.random() * (camera.position.x + 300) - (camera.position.x - 150)) + (camera.position.x - 150);
-                this.object.position.y = (Math.random() * (camera.position.y + 150) - (camera.position.y - 50)) + (camera.position.y - 50);
-                this.object.position.z = (Math.random() * (camera.position.z + 150) - (camera.position.z + 50)) + (camera.position.z + 50);
+                this.object.position.x = (Math.random() * (views[1].camera.position.x + 300) - (views[1].camera.position.x - 150)) + (views[1].camera.position.x - 150);
+                this.object.position.y = (Math.random() * (views[1].camera.position.y + 150) - (views[1].camera.position.y - 50)) + (views[1].camera.position.y - 50);
+                this.object.position.z = (Math.random() * (views[1].camera.position.z + 150) - (views[1].camera.position.z + 50)) + (views[1].camera.position.z + 50);
                 this.object.geometry.computeBoundingSphere();
                 scene.add(this.object);
             }
@@ -589,12 +595,15 @@ void main()
 
                 
 
-            camera.getWorldDirection(direction);
+            views[1].camera.getWorldDirection(direction);
 
             var pCount = parts.length;
             while (pCount--) {
                 parts[pCount].update();
             }
+            // console.log(views[1].camera, "camera 1");
+            
+            // console.log(cameraPosition.y, "camera positoin 1");
 
             executeMovements();
             for (let i = 0; i < objects.length; i++) {
@@ -624,17 +633,29 @@ void main()
                 direction.z *= delta * speed;
                 // console.log("direction after math ", direction)
                 // console.log("camera position before ", camera.position);
-                camera.position.add(direction);
+                views[1].camera.position.add(direction);
                 // console.log("camera position after ", camera.position);
                 //console.log(controls);
+                
                 for (let i = 0; i < objects.length; i++) {
                     collisionDetection(cameraPosition, objects[i]);
                     tooFar(cameraPosition, objects[i]);
                 }
 
-                cameraPosition.x = camera.position.x;
-                cameraPosition.y = camera.position.y;
-                cameraPosition.z = camera.position.z;
+                
+                console.log("direction", direction)
+                cameraPosition.x = views[1].camera.position.x;
+                cameraPosition.y = views[1].camera.position.y;
+                cameraPosition.z = views[1].camera.position.z;
+
+                // cameraPosition.x = views[0].camera.position.x;
+                // cameraPosition.y = views[0].camera.position.y;
+                // cameraPosition.z = views[0].camera.position.z;
+                //lookAwayFrom(views[0].camera,direction);
+               // transform.rotation= Quaternion.LookRotation(transform.position - camera.position);
+
+                
+               // console.log(views[1], "views 1 after");
 
                 // console.log("camera ", cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
@@ -646,7 +667,7 @@ void main()
             }
 
 
-            renderer.render(scene, camera);
+            renderer.render(scene, views[1].camera);
             // renderer.render(scene, backCamera);
             //renderer.render(scene, backCamera);
         }
