@@ -51,19 +51,74 @@ void main()
 
     <script type="module">
 
+        import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
+        import { PointerLockControls } from 'http://cs.merrimack.edu/~stuetzlec/three.js-master/examples/jsm/controls/PointerLockControls.js';
+
+
+        let mouseX = 0, mouseY = 0;
+
+        const views = [
+            {
+
+                //backwards
+                left: 0.7,
+                bottom: 0.0,
+                width: 0.5,
+                height: 1.0,
+                leftWindow: Math.floor(window.innerWidth * 0.7),
+                bottomWindow: Math.floor(window.innerHeight * 0.0),
+                widthWindow: Math.floor(window.innerWidth * 0.5),
+                heightWindow: Math.floor(window.innerHeight * 1.0),
+                background: new THREE.Color(0.5, 0.5, 0.7),
+                eye: [0, 300, 1800],
+                up: [0, 1, 0],
+                fov: 30,
+                updateCamera: function (backCamera, scene, mouseX) {
+
+                    backCamera.position.x += mouseX * 0.05;
+                    backCamera.position.x = Math.max(Math.min(backCamera.position.x, 2000), - 2000);
+                    backCamera.lookAt(scene.position);
+
+                }
+            },
+            {
+                //Frontward facing camera
+                left: 0.0,
+                bottom: 0.05,
+                width: 0.7,
+                height: 1.0,
+                leftWindow: Math.floor(window.innerWidth * 0.0),
+                bottomWindow: Math.floor(window.innerHeight * 0.05),
+                widthWindow: Math.floor(window.innerWidth * 0.7),
+                heightWindow: Math.floor(window.innerHeight * 1.0),
+                background: new THREE.Color(0.7, 0.5, 0.5),
+                eye: [0, 1800, 0],
+                up: [0, 0, 1],
+                fov: 45,
+                updateCamera: function (camera, scene, mouseX) {
+
+                    camera.position.x -= mouseX * 0.05;
+                    camera.position.x = Math.max(Math.min(camera.position.x, 2000), - 2000);
+                    camera.lookAt(camera.position.clone().setY(0));
+
+                }
+            }
+        ];
+
 
 
         var movementSpeeds = 40;
         var totalObjects = 500;
         var objectSize = 10;
         var sizeRandomness = 4000;
-        var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF];
+        var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF, 0xcbbeb5, 0x9003ff, 0x6d9bc3,
+            0x87a96b, 0x520520, 0xeaa315, 0x327572, 0xb8888d, 0xcc77dd, 0xbcd4e6, 0xfe6f5e, 0x318ce7, 0xa2a2d0];
         /////////////////////////////////
         var dirs = [];
         var parts = [];
 
         var direction = new THREE.Vector3();
-
+        let index;
         let prevTime = performance.now();
         const velocity = new THREE.Vector3();
 
@@ -73,8 +128,6 @@ void main()
         var xLookAt = 0;
         var yLookAt = 0;
         var zLookAt = 0;
-        import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
-        import { PointerLockControls } from 'http://cs.merrimack.edu/~stuetzlec/three.js-master/examples/jsm/controls/PointerLockControls.js';
 
 
         // float rand = Math.random()*1;
@@ -82,26 +135,41 @@ void main()
         var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
         var cameraPosition = new THREE.Vector3(300, 300, 300)
         camera.position.set(300, 300, 300);
-        camera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
+        camera.lookAt(new THREE.Vector3(1.0, 1.0, 1.0));
         scene.add(camera);
 
 
-        // var backCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-        // var backCameraPosition = new THREE.Vector3(300, 300, 300)
-        // backCamera.position.set(300, 300, 300);
-        // backCamera.lookAt(new THREE.Vector3(0.0, 0.0, 0.0));
-        // scene.add(backCamera);
+
 
 
 
         var renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
-        // const left = Math.floor(window.innerWidth * .7);
-        // const bottom = Math.floor(window.innerHeight * .5);
-        // const width = Math.floor(window.innerWidth * .5);
-        // const height = Math.floor(window.innerHeight * .5);
+        const left = Math.floor(window.innerWidth * 0.0);
+        const bottom = Math.floor(window.innerHeight * .05);
+        const width = Math.floor(window.innerWidth * .7);
+        const height = Math.floor(window.innerHeight * 1.0);
 
-        // renderer.setViewport(left, bottom, width, height);
-        // renderer.setScissor(left, bottom, width, height);
+
+        renderer.setViewport(views[1].left, views[1].bottom, views[1].width, views[1].height);
+        renderer.setScissor(views[1].leftWindow, views[1].bottomWindow, views[1].widthWindow, views[1].heightWindow);
+        renderer.setScissorTest(true);
+
+
+
+        const backLeft = Math.floor(window.innerWidth * .7);
+        const backRight = Math.floor(window.innerHeight * 0.0);
+        const backWidth = Math.floor(window.innerWidth * .5);
+        const backHeight = Math.floor(window.innerHeight * 1.0);
+
+        var backCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
+        var backCameraPosition = new THREE.Vector3(300, 300, 300)
+        backCamera.position.set(300, 300, 300);
+        backCamera.lookAt(new THREE.Vector3(-1.0, -1.0, -1.0));
+        scene.add(backCamera);
+
+
+        // renderer.setViewport(views[0].left, views[0].right,  views[0].width,  views[0].height);
+        // renderer.setScissor(views[0].leftWindow, views[0].bottomWindow, views[0].widthWindow, views[0].heightWindow);
         // renderer.setScissorTest(true);
 
 
@@ -230,7 +298,7 @@ void main()
                     geometry.computeFaceNormals();
                     this.object = new THREE.Mesh(geometry, makeMaterial());
                 }
-                else if (shape == false){
+                else if (shape == false) {
 
                     let x, y, z;
                     if (random(1) > 7) {
@@ -261,6 +329,9 @@ void main()
                 let shape = new Piece(random(0));
                 objects.push(shape);
                 shape.create();
+                if (shape.object.material == shaderMaterials) {
+                    index = i;
+                }
             }
         }
 
@@ -385,7 +456,10 @@ void main()
                 geometry.vertices.push(vertex);
                 dirs.push({ x: (Math.random() * movementSpeeds) - (movementSpeeds / 2), y: (Math.random() * movementSpeeds) - (movementSpeeds / 2), z: (Math.random() * movementSpeeds) - (movementSpeeds / 2) });
             }
-            var material = new THREE.PointsMaterial({ size: objectSize, color: 0xFFFFFF });
+
+            var colorsRand = Math.round(Math.random() * 17)
+            console.log('random color', colorsRand);
+            var material = new THREE.PointsMaterial({ size: objectSize, color: colors[colorsRand] });
             var particles = new THREE.Points(geometry, material);
 
             this.object = particles;
@@ -419,6 +493,35 @@ void main()
 
 
         function animate() {
+
+
+
+            // for (let ii = 0; ii < views.length; ++ii) {
+
+            //     const view = views[ii];
+            //     const camera = view.camera;
+
+            //     view.updateCamera(camera, scene, mouseX, mouseY);
+
+            //     const left = Math.floor(windowWidth * view.left);
+            //     const bottom = Math.floor(windowHeight * view.bottom);
+            //     const width = Math.floor(windowWidth * view.width);
+            //     const height = Math.floor(windowHeight * view.height);
+
+            //     renderer.setViewport(left, bottom, width, height);
+            //     renderer.setScissor(left, bottom, width, height);
+            //     renderer.setScissorTest(true);
+            //     renderer.setClearColor(view.background);
+
+            //     camera.aspect = width / height;
+            //     camera.updateProjectionMatrix();
+
+            //     renderer.render(scene, camera);
+
+            // }
+
+
+
             camera.getWorldDirection(direction);
 
             var pCount = parts.length;
@@ -435,27 +538,27 @@ void main()
 
             tdelta += 0.03;
             // Update the uniform value for delta
-           // sphere.material.uniforms.delta.value = Math.sin(tdelta);
-
+            // sphere.material.uniforms.delta.value = Math.sin(tdelta);
+            objects[index].object.material.uniforms.delta.value = Math.sin(tdelta);
 
             requestAnimationFrame(animate);
-            
+
 
             if (controls.isLocked === true) {
                 const time = performance.now();
                 const delta = (time - prevTime) / 1000;
-               // console.log("delta ", delta);
-               // console.log("direction before math ", direction);
-               // console.log("both ", direction * delta);
+                // console.log("delta ", delta);
+                // console.log("direction before math ", direction);
+                // console.log("both ", direction * delta);
                 //CAMERA MOVES HERE
                 var speed = 45;
                 direction.x *= delta * speed;
                 direction.y *= delta * speed;
                 direction.z *= delta * speed;
-               // console.log("direction after math ", direction)
-               // console.log("camera position before ", camera.position);
+                // console.log("direction after math ", direction)
+                // console.log("camera position before ", camera.position);
                 camera.position.add(direction);
-               // console.log("camera position after ", camera.position);
+                // console.log("camera position after ", camera.position);
                 //console.log(controls);
                 for (let i = 0; i < objects.length; i++) {
                     collisionDetection(cameraPosition, objects[i]);
@@ -475,8 +578,9 @@ void main()
                 // controls.getObject().position.y += (velocity.y * delta); // new behavior
             }
 
-           
+
             renderer.render(scene, camera);
+            // renderer.render(scene, backCamera);
             //renderer.render(scene, backCamera);
         }
 
