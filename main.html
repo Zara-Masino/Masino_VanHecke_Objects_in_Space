@@ -89,6 +89,7 @@ void main()
         var xLookAt = 0;
         var yLookAt = 0;
         var zLookAt = 0;
+        var speed = 50;
 
 
         //This creates a JSON object which specifies the different cameras and the views & background colors 
@@ -184,12 +185,13 @@ void main()
 
         function render() {
 
-            updateSize();
+            updateSize(); //Resizes window width and eight if need be
 
             //Iterates through the different view objects
             for (let ii = views.length-1; ii >= 0; --ii) {
 
-                const view = views[ii];
+                const view = views[ii]; //Sets the view we will be working on in this for loop to one of the views
+                //in the views object
                 let camera = view.camera; //Sets a variable called camera to the specified views camera
                 //view.updateCamera(camera, scene, mouseX, mouseY);
 
@@ -207,7 +209,7 @@ void main()
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
 
-                renderer.render(scene, camera);
+                renderer.render(scene, camera); //Renders the scene with specified cameras
 
             }
 
@@ -248,7 +250,7 @@ void main()
                 material.blending = THREE.CustomBlending;
                 material.blendEquation = THREE.MaxEquation; //default
                 material.blendSrc = THREE.SrcAlphaFactor; //default
-                material.blendDst = THREE.OneMinusSrcAlphaFactor; //default
+                material.blendDst = THREE.OneMinusSrcAlphaFactor; //defaults
                 return material;
             }
         }
@@ -450,6 +452,15 @@ void main()
                 parts.push(new ExplodeAnimation(shape.object.position.x, shape.object.position.y, shape.object.position.z));
                 //Adds new explosion parts 
                 relocateShape(shape); //Relocates object to be within the camera's bounds
+                views[1].background = new THREE.Color(0.8, 0.0,0.0); //Changes background color to red whenever you
+                //hit an object
+                speed = speed/2; //Halve the speed
+                setTimeout(function(){ //Wait for 300 milliseconds before you do the following
+                    views[1].background = new THREE.Color(0.0,0.0,0.0); //Set the background color back to black
+                    speed = speed*2; //Set the speed back to its original state
+                }, 300);
+
+
             }
         }
 
@@ -462,7 +473,7 @@ void main()
         //This shaderMaterial creates a material that will be created using a vertex and fragment shader
         var shaderMaterials = new THREE.ShaderMaterial({
             uniforms: customUniforms, //Passes in our custom uniforms
-            vertexShader: document.getElementById('vertexShader').textContent,
+            vertexShader: document.getElementById('vertexShader').textContent, 
             fragmentShader: document.getElementById('fragShader').textContent
         });
 
@@ -519,24 +530,31 @@ void main()
                 dirs.push({ x: (Math.random() * movementSpeeds) - (movementSpeeds / 2), y: (Math.random() * movementSpeeds) - (movementSpeeds / 2), z: (Math.random() * movementSpeeds) - (movementSpeeds / 2) });
             }
 
-            var colorsRand = Math.round(Math.random() * 17)
-            var material = new THREE.PointsMaterial({ size: objectSize, color: colors[colorsRand] });
-            var particles = new THREE.Points(geometry, material);
+            var colorsRand = Math.round(Math.random() * 17) //Generates a random number that will be used to randomly
+            //select a color from the color array
+            var material = new THREE.PointsMaterial({ size: objectSize, color: colors[colorsRand] }); //Create point material
+            //with random color
+            var particles = new THREE.Points(geometry, material); //Create mesh for point
 
-            this.object = particles;
-            this.status = true;
+            this.object = particles; //Sets the particle mesh to a property of this function
+            this.status = true; //Sets a boolean property of this function to true
 
-            this.xDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);
-            this.yDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);
-            this.zDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);
+            this.xDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2); //Randomly generates a speed for the point to travel
+            //in the x direction
+            this.yDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);//Randomly generates a speed for the point to travel
+            //in the y axis direction
+            this.zDir = (Math.random() * movementSpeeds) - (movementSpeeds / 2);//Randomly generates a speed for the point to travel
+            //in the z axis direction
 
-            scene.add(this.object);
+            scene.add(this.object); //Adds the particle object to the scene
 
-            this.update = function () {
-                if (this.status == true) {
-                    var pCount = totalObjects;
-                    while (pCount--) {
-                        var particle = this.object.geometry.vertices[pCount]
+            this.update = function () { //Function which adds all of these particles to the scene and sends htem off in random
+                //directions
+                if (this.status == true) { //If particles need to be added to the scene
+                    var pCount = totalObjects; //Set pcount equal to the number of total particles we want
+                    while (pCount--) { //While pcount is not 0
+                        var particle = this.object.geometry.vertices[pCount] //Creates a random particle 
+                        //Continuously increments the x,y,z position of the particle object
                         particle.y += dirs[pCount].y;
                         particle.x += dirs[pCount].x;
                         particle.z += dirs[pCount].z;
@@ -547,11 +565,12 @@ void main()
 
         }
 
+        //The animate function is a function which is continuously called every frame of the program
         function animate() {
 
-            render();
+            render(); //Calls render function
 
-            views[1].camera.getWorldDirection(direction);
+            views[1].camera.getWorldDirection(direction); //Gets the direction in which the camera is looking
 
             var pCount = parts.length;
             while (pCount--) {
@@ -567,29 +586,31 @@ void main()
             }
 
 
-            tdelta += 0.03;
-
-            //slight chance of breakage. fix later
-            if (hasShader == true) {
-                objects[index].object.material.uniforms.delta.value = Math.sin(tdelta);
+            tdelta += 0.03; //Increment the tdelta value which will be used to grow/shrink specified objects continuously
+            if (hasShader == true) { //If the object has a shadermaterial /Intended to prevent objects without shader materials
+                //from causing an error
+                objects[index].object.material.uniforms.delta.value = Math.sin(tdelta); //Change all object's with a shader material
+                //So that their delta value in the customUniforms becomes a sin wave which enables the objects to shrink/grow in size
             }
 
             requestAnimationFrame(animate);
 
 
-            if (controls.isLocked === true) {
-                const time = performance.now();
-                const delta = (time - prevTime) / 1000;
+            if (controls.isLocked === true) { //This if statement only occurs when the pointerlock control system is enabled
+                const time = performance.now(); //This returns the value of time (of type double) in milliseconds
+                const delta = (time - prevTime) / 1000; //This calculates delta time based on subtracting the current time a 
+                //frame was rendered from the last time a frame was rendered. Then we divide it by 1000
                 // console.log("direction before math ", direction);
                 // console.log("both ", direction * delta);
                 //CAMERA MOVES HERE
-                var speed = 50;
+                //Customizes the movement of the camera in every axis so that it will always move by delta time multiplied
+                //by some speed
                 direction.x *= delta * speed;
                 direction.y *= delta * speed;
                 direction.z *= delta * speed;
                 // console.log("direction after math ", direction)
                 // console.log("camera position before ", camera.position);
-                views[1].camera.position.add(direction);
+                views[1].camera.position.add(direction); //Moves the camera in delta time
                 // console.log("camera position after ", camera.position);
                 //console.log(controls);
 
