@@ -10,12 +10,9 @@
 
     <script type="x-shader/x-vertex" id="vertexShader">
 
-
         uniform float delta;
         uniform float alpha;
         out float rand;
-
-
 
         float random( vec2 p )
         {
@@ -51,6 +48,7 @@ void main()
 
     <script type="module">
 
+        //This imports the THREE library and the PointerLockControls from the school's website
         import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
         import { PointerLockControls } from 'http://cs.merrimack.edu/~stuetzlec/three.js-master/examples/jsm/controls/PointerLockControls.js';
 
@@ -65,7 +63,7 @@ void main()
         // scene.add(camera);
 
 
-
+        //Variable Declarations
         var renderer;
         var hasShader;
         var tdelta = 0;
@@ -73,25 +71,43 @@ void main()
         const bottom = Math.floor(window.innerHeight * .05);
         const width = Math.floor(window.innerWidth * .7);
         const height = Math.floor(window.innerHeight * 1.0);
-
         let windowWidth, windowHeight;
+        var movementSpeeds = 40;
+        var totalObjects = 500;
+        var objectSize = 10;
+        var sizeRandomness = 4000;
+        var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF, 0xcbbeb5, 0x9003ff, 0x6d9bc3,
+            0x87a96b, 0x520520, 0xeaa315, 0x327572, 0xb8888d, 0xcc77dd, 0xbcd4e6, 0xfe6f5e, 0x318ce7, 0xa2a2d0];
+        /////////////////////////////////
+        var dirs = [];
+        var parts = [];
+        var direction = new THREE.Vector3();
+        let index;
+        let prevTime = performance.now();
+        const velocity = new THREE.Vector3();
+        let objects = [];
+        var xLookAt = 0;
+        var yLookAt = 0;
+        var zLookAt = 0;
 
 
+        //This creates a JSON object which specifies the different cameras and the views & background colors 
+        //for each camera 
         const views = [
             {
-                //backwards
-                left: 0.5,
-                bottom: 0.0,
-                width: 0.7,
+                //Sets the viewport size for the backwards camera
+                left: 0.7,
+                bottom: 0.5,
+                width: 0.5,
                 height: 1.0,
                 leftWindow: Math.floor(window.innerWidth * 0.5),
                 bottomWindow: Math.floor(window.innerHeight * 0.0),
                 widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
-                background: new THREE.Color(0.1, 0.1, 0.7),
-                eye: [300, 300, 300],
+                background: new THREE.Color(0.8, 0.0, 0.0),
+                eye: [300, 300, 300], //Sets up where the camera originally looks
                 up: [0, 1, 0],
-                fov: 100,
+                fov: 100, //Sets up how zoomed in the camera is
                 // updateCamera: function (backCamera, scene, mouseX) {
 
                 //     backCamera.position.x += mouseX * 0.05;
@@ -102,18 +118,19 @@ void main()
             },
             {
                 //Frontward facing camera
+                //Sets the viewport size for the frontward facing camera
                 left: 0.0,
                 bottom: 0.0,
-                width: 0.5, //.7
+                width: 1.0, //.7
                 height: 1.0,
                 leftWindow: Math.floor(window.innerWidth * 0.0),
                 bottomWindow: Math.floor(window.innerHeight * 0.05),
                 widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
                 background: new THREE.Color(0.0, 0.0, 0.0),
-                eye: [300, 300, 300],
+                eye: [300, 300, 300], //Sets up where the camera originally looks
                 up: [0, 0, 1],
-                fov: 100,
+                fov: 100,//Sets up how zoomed in the camera is
                 // updateCamera: function (camera, scene, mouseX) {
 
                 //     camera.position.x -= mouseX * 0.05;
@@ -124,57 +141,69 @@ void main()
             }
         ];
 
+        //This function initializes the renderer and the scene for the multiple viewports
         function initScene() {
-
+            //Iterations through the multiple views in the views object
             for (let ii = 0; ii < views.length; ++ii) {
-
                 const view = views[ii];
                 const camera = new THREE.PerspectiveCamera(view.fov, window.innerWidth / window.innerHeight, 1, 10000);
-                camera.position.fromArray(view.eye);
-                camera.up.fromArray(view.up);
-                view.camera = camera;
+                //Creates a camera for each view
+                camera.position.fromArray(view.eye); //Positions each camera in a specific spot
+                camera.up.fromArray(view.up); //Moves a camera specifically 
+                view.camera = camera;//Adds the camera to the specific view
 
             }
+
             renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
+            //Creates a renderer value
             renderer.setClearColor(0x000000);
-            // If you want this to span the window, instead of using the myCanvas object, use the window object
-            renderer.setPixelRatio(document.getElementById('myCanvas').devicePixelRatio);
+            // Sets the color for the renderer and makes it black
+            renderer.setPixelRatio(document.getElementById('myCanvas').devicePixelRatio); //Adds the canvas to the renderer
             // If you want the render to span the window, uncomment this
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setSize(window.innerWidth, window.innerHeight); //Sets the size of the renderer to the entirety of the 
+            //Window height and width
 
         }
 
+       
+        //This function updates the window width and height variables to the actual width and height of the computer
+        //regardless of whether the console has been opened or not
         function updateSize() {
-            if (windowWidth != window.innerWidth || windowHeight != window.innerHeight) {
+            if (windowWidth != window.innerWidth || windowHeight != window.innerHeight) { //If the window width or height has 
+                //actually been changed than this if statement is triggered
                 windowWidth = window.innerWidth;
                 windowHeight = window.innerHeight;
                 renderer.setSize(windowWidth, windowHeight);
             }
         }
 
-        initScene();
+        initScene(); //Calls init size
+
+          //Adds controls to one PointerLockControls
+          var controls = new PointerLockControls(views[1].camera, document.body);
 
         function render() {
 
             updateSize();
 
-            for (let ii = 0; ii < views.length; ++ii) {
+            //Iterates through the different view objects
+            for (let ii = views.length-1; ii >= 0; --ii) {
 
                 const view = views[ii];
-                const camera = view.camera;
-
+                let camera = view.camera; //Sets a variable called camera to the specified views camera
                 //view.updateCamera(camera, scene, mouseX, mouseY);
 
+                //Calculates how large exactly the viewport should be
                 const left = Math.floor(windowWidth * view.left);
                 const bottom = Math.floor(windowHeight * view.bottom);
                 const width = Math.floor(windowWidth * view.width);
                 const height = Math.floor(windowHeight * view.height);
 
+                //Gives the renderer a specific size and scissors it
                 renderer.setViewport(left, bottom, width, height);
                 renderer.setScissor(left, bottom, width, height);
                 renderer.setScissorTest(true);
-                renderer.setClearColor(view.background);
-
+                renderer.setClearColor(view.background); //Gives the renderer for a specific viewport a specific color
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
 
@@ -184,59 +213,36 @@ void main()
 
         }
 
-
-        var movementSpeeds = 40;
-        var totalObjects = 500;
-        var objectSize = 10;
-        var sizeRandomness = 4000;
-        var colors = [0xFF0FFF, 0xCCFF00, 0xFF000F, 0x996600, 0xFFFFFF, 0xcbbeb5, 0x9003ff, 0x6d9bc3,
-            0x87a96b, 0x520520, 0xeaa315, 0x327572, 0xb8888d, 0xcc77dd, 0xbcd4e6, 0xfe6f5e, 0x318ce7, 0xa2a2d0];
-        /////////////////////////////////
-        var dirs = [];
-        var parts = [];
-
-        var direction = new THREE.Vector3();
-        let index;
-        let prevTime = performance.now();
-        const velocity = new THREE.Vector3();
-
-
-
-        let objects = [];
-        var xLookAt = 0;
-        var yLookAt = 0;
-        var zLookAt = 0;
-
-
-        var controls = new PointerLockControls(views[1].camera, document.body);
-
+        //When the user clicks then the pointer controls actually lock into place and  become enabled
         document.addEventListener('click', function () {
             controls.lock();
         });
 
-
-
+        //This random function randomly returns a true or false value in order to help randomize certain customizations
         function random(type) {
-            let randomNumber = Math.round(Math.random() * 10);
-            if (type == 0) {
-                if (randomNumber % 2 == 0) {
-                    return true;
+            let randomNumber = Math.round(Math.random() * 10); //Creates a random number between 0 and 10
+            if (type == 0) { //If the type passed in is 0
+                if (randomNumber % 2 == 0) { //If the random number is even
+                    return true; 
                 }
                 else {
                     return false;
                 }
             }
-            else if (type == 1) {
+            else if (type == 1) { //If the type was 1 then return the random number
                 return randomNumber;
             }
         }
 
+        //This function makes either a shader material or customized material that involves blending
         function makeMaterial() {
-            if (random(1) > 8) {
+            if (random(1) > 8) { //If the random function returns a random number greater than 8 then return a material
+                //with a customized shader material
                 hasShader = true;
                 return shaderMaterials;
             }
             else {
+                //Otherwise it creates a material that has blending functionality
                 var material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
                 //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
                 material.blending = THREE.CustomBlending;
@@ -248,127 +254,142 @@ void main()
         }
 
 
+        //This movement speed calcualtes and returns a randomized speed below a certain limit which will be given 
+        //as a movement speed for an object
         function movementSpeed(constant) {
-            var speed = Math.random() * constant;
-            if (random(0) == false) {
-                speed *= -1;
+            var speed = Math.random() * constant; //Creates a random speed
+            if (random(0) == false) { //If the random function returns false
+                speed *= -1; //Make it negative
             }
-            return speed;
+            return speed; //Returns speed
         }
 
 
+        //Piece function creates and customizes piece objects which will be added to the scene
         function Piece(shape) {
+            //Randomizes whether or not the object will rotate on the x,y & z axis
             this.rotateOnXAxis = random(0);
             if (this.rotateOnXAxis == true) {
-                this.rotateXSpeed = movementSpeed(.12);
+                this.rotateXSpeed = movementSpeed(.12); //Randomize a speed for the object's x rotation
             }
             this.rotateOnYAxis = random(0);
             if (this.rotateOnYAxis == true) {
-                this.rotateYSpeed = movementSpeed(.12);
+                this.rotateYSpeed = movementSpeed(.12);//Randomize a speed for the object's y rotation
             }
             this.verticalMovement = random(0);
             if (this.verticalMovement == true) {
-                this.verticalSpeed = movementSpeed(2);
+                this.verticalSpeed = movementSpeed(2);//Randomize a speed for the object's vertical movement
             }
             this.horizontalMovement = random(0);
             if (this.horizontalMovement == true) {
-                this.horizontalSpeed = movementSpeed(2);
+                this.horizontalSpeed = movementSpeed(2);//Randomize a speed for the object's horizontal movement
             }
             this.depthMovement = random(0);
             if (this.depthMovement == true) {
-                this.depthSpeed = movementSpeed(2);
+                this.depthSpeed = movementSpeed(2);//Randomize a speed for the object's z axis movement
             }
 
-            // Set up the geometries
+            // Set up for all of the geometries
             this.create = function () {
-                if (shape == true) {
+                if (shape == true) { //If a random number is true then enter this if statement
                     let x, y, z;
-                    if (random(1) > 8) {
+                    if (random(1) > 8) { //If a random number is greater than 8 then enter this if statement
+                        //and make a perfect sphere
                         let w = Math.random() * 50 + 5;
                         x = Math.random() * 20 + 5;
                         y = w;
                         z = w;
                     }
-                    else {
+                    else { //Otherwise, randomize each of the parameters that make up a sphere
                         x = Math.random() * 20 + 5;
                         y = Math.random() * 3 + 3;
                         z = Math.random() * 3 + 3;
                     }
 
 
-                    var geometry = new THREE.SphereGeometry(x, y, z);
-                    geometry.computeFaceNormals();
-                    this.object = new THREE.Mesh(geometry, makeMaterial());
+                    var geometry = new THREE.SphereGeometry(x, y, z); //Create sphere geometries
+                    geometry.computeFaceNormals(); //Compute normals
+                    this.object = new THREE.Mesh(geometry, makeMaterial()); //Create a material for the geometry and
+                    //add set it to a property of the piece function
                 }
-                else if (shape == false) {
+                else if (shape == false) { //Otherwise make a box geometry
 
                     let x, y, z;
-                    if (random(1) > 7) {
-                        let w = Math.random() * 40 + 10;
+                    if (random(1) > 7) { //If a randomoly generated number is greater than 7
+                        let w = Math.random() * 40 + 10; //Make a perfect box
                         x = w;
                         y = w;
                         z = w;
                     }
-                    else {
+                    else { //Otherwise make a randomized box
                         x = Math.random() * 40 + 10;
                         y = Math.random() * 40 + 10;
                         z = Math.random() * 40 + 10;
                     }
-                    let boxGeometry = new THREE.BoxGeometry(x, y, z);
-                    this.object = new THREE.Mesh(boxGeometry, makeMaterial());
+                    let boxGeometry = new THREE.BoxGeometry(x, y, z); //Create a box geometry
+                    this.object = new THREE.Mesh(boxGeometry, makeMaterial()); //Create a new material for the box geomtry
+                    //and set that mesh to a property of the function
                 }
+                //Set the objects position within some bounds of the camera's position
                 this.object.position.x = (Math.random() * (views[1].camera.position.x + 300) - (views[1].camera.position.x - 150)) + (views[1].camera.position.x - 150);
                 this.object.position.y = (Math.random() * (views[1].camera.position.y + 150) - (views[1].camera.position.y - 50)) + (views[1].camera.position.y - 50);
                 this.object.position.z = (Math.random() * (views[1].camera.position.z + 150) - (views[1].camera.position.z + 50)) + (views[1].camera.position.z + 50);
-                this.object.geometry.computeBoundingSphere();
-                scene.add(this.object);
+                this.object.geometry.computeBoundingSphere(); //Compute a bounding sphere around each object
+                //and set it as a property of the piece function
+                scene.add(this.object); //Add the object to the scene
             }
 
         }
 
+        //This function creates a specified number of objects which will be placed in the scene
         function initObjects(x) {
-            for (let i = 0; i < x; i++) {
-                let shape = new Piece(random(0));
-                objects.push(shape);
-                shape.create();
-                if (shape.object.material == shaderMaterials) {
+            for (let i = 0; i < x; i++) { //Iterates for a specified number of times
+                let shape = new Piece(random(0)); //Creates a piece object based on the random function
+                objects.push(shape);//Adds the object to the objects array
+                shape.create(); //Actually customizes and places the object
+                if (shape.object.material == shaderMaterials) { //If the material is a customized shader material that
+                    //went through the vertex shader then simply make note of it via the index object
                     index = i;
                 }
             }
         }
 
-
-
+        //Creates a new random coordinate based on a minimum and maximum
         function makeCoord(max, min) {
-            let randomNumber = (Math.random() * max) + min;
-            if (random(0) == true) {
-                randomNumber *= -1;
+            let randomNumber = (Math.random() * max) + min; //Randomly generates a number
+            if (random(0) == true) { //If the random function returns true
+                randomNumber *= -1; //Make the randomly generated number negative
             }
             return randomNumber;
         }
 
+        //This function places piece objects back within bounds of the camera's position
         function relocateShape(shape) {
 
+            //Calls the make coord function to randomly generate a new point within specified bounds where the
+            //object will be placed
             let x = makeCoord(200, 10);
             let y = makeCoord(200, 10);
             let z = makeCoord(200, 10);
 
+            //Makes the object's position the camera's current position plus whatever randomm coordinates were
+            //generated from the makeCoord function and stays within bounds
             shape.object.position.x = cameraPosition.x + (x);
             shape.object.position.y = cameraPosition.y + (y);
             shape.object.position.z = cameraPosition.z + (z);
         }
 
-
-
-
+        //Calculates the distance between two points
         function calcDistance(point, shape) {
+            //This calculates the distance of two points based on the distance formula
             const distance = Math.sqrt(
                 (point.x - shape.object.position.x) * (point.x - shape.object.position.x) +
                 (point.y - shape.object.position.y) * (point.y - shape.object.position.y) +
                 (point.z - shape.object.position.z) * (point.z - shape.object.position.z)
             )
-            return distance;
+            return distance; //Returns distance
         }
+
 
 
         function calcLookAt(cameraPos, otherLookAt) {
@@ -409,80 +430,92 @@ void main()
             return nowLookAt;
         }
 
-
-
+        //Calculates whether two points (the camera position and the position of an object) are within bounds of one another
+        //
         function tooFar(point, shape) {
-            let distance = calcDistance(point, shape);
-            if (distance > 300) {
-                relocateShape(shape);
+            let distance = calcDistance(point, shape); //Calculates distance between camera position and an object
+            if (distance > 300) {//If they aren't then the function relocates the shape to be within bounds
+                relocateShape(shape); //Relocates shape
             };
 
         }
 
-
+        //Function which detects whether the camera has collided with an object and then provides
+        //some functionality to show that the collision was dealt with
         function collisionDetection(point, shape) {
-            let distance = calcDistance(point, shape);
-            if (distance < shape.object.geometry.boundingSphere.radius) {
+            let distance = calcDistance(point, shape); //Calculates the distance between the camera's position
+            //and an object
+            if (distance < shape.object.geometry.boundingSphere.radius) { //If the distance or camera is within the objects
+                //bounding sphere
                 parts.push(new ExplodeAnimation(shape.object.position.x, shape.object.position.y, shape.object.position.z));
-                relocateShape(shape);
+                //Adds new explosion parts 
+                relocateShape(shape); //Relocates object to be within the camera's bounds
             }
         }
 
-
+        //Creates custom uniforms that will be used with the shaderMaterials
         var customUniforms = {
             delta: { value: 0 },
             alpha: { value: Math.random() * 1 }
         };
 
+        //This shaderMaterial creates a material that will be created using a vertex and fragment shader
         var shaderMaterials = new THREE.ShaderMaterial({
-            uniforms: customUniforms,
+            uniforms: customUniforms, //Passes in our custom uniforms
             vertexShader: document.getElementById('vertexShader').textContent,
             fragmentShader: document.getElementById('fragShader').textContent
         });
 
 
+        //This function actually executes the object's movements in the scene
         function executeMovements() {
-            for (let i = 0; i < objects.length; i++) {
-                if (objects[i].rotateOnYAxis == true) {
+            for (let i = 0; i < objects.length; i++) { //Iterates through the for loop of objects
+                if (objects[i].rotateOnYAxis == true) { //If the object is supposed to rotate on the y axis then this if statement
+                    //is triggered
                     if (random(0) == true) {
-                        objects[i].object.rotateY(objects[i].rotateYSpeed);
+                        objects[i].object.rotateY(objects[i].rotateYSpeed); //Rotate the object using the speed we declared
                     }
                 }
-                if (objects[i].rotateOnXAxis == true) {
+                if (objects[i].rotateOnXAxis == true) {//If the object is supposed to rotate on the x axis then this if statement
+                    //is triggered
                     if (random(0) == true) {
-                        objects[i].object.rotateX(objects[i].rotateXSpeed);
+                        objects[i].object.rotateX(objects[i].rotateXSpeed);//Rotate the object using the speed we declared
                     }
                 }
-                if (objects[i].verticalMovement == true) {
+                if (objects[i].verticalMovement == true) {//If the object is supposed to move vertically then this if statement
+                    //is triggered
                     if (random(0) == true) {
-                        objects[i].object.translateY(objects[i].verticalSpeed);
+                        objects[i].object.translateY(objects[i].verticalSpeed);//Move the object vertically using the speed we declared
                     }
                 }
-                if (objects[i].horizontalMovement == true) {
+                if (objects[i].horizontalMovement == true) {//If the object is supposed to move horizontally then this if statement
+                    //is triggered
                     if (random(0) == true) {
-                        objects[i].object.translateX(objects[i].horizontalSpeed);
+                        objects[i].object.translateX(objects[i].horizontalSpeed);//Move the object horizontally using the speed we declared
                     }
                 }
-                if (objects[i].depthMovement == true) {
+                if (objects[i].depthMovement == true) {//If the object is supposed to move on the z axis then this if statement
+                    //is triggered
                     if (random(0) == true) {
-                        objects[i].object.translateZ(objects[i].depthSpeed);
+                        objects[i].object.translateZ(objects[i].depthSpeed);//Move the object on the z axis using the speed we declared
                     }
                 }
             }
         }
 
 
-
+        //This function actually creates the particles that will explode whenever the camera collides with an object
         function ExplodeAnimation(x, y, z) {
-            var geometry = new THREE.Geometry();
+            var geometry = new THREE.Geometry(); //Create a geometry
 
-            for (let i = 0; i < totalObjects; i++) {
-                var vertex = new THREE.Vector3();
-                vertex.x = x;
+            for (let i = 0; i < totalObjects; i++) { //Iterates a set number of times. Creates another particle each time
+                var vertex = new THREE.Vector3(); //Creates a new vector 3
+                vertex.x = x; //Sets the position for the vector 3
                 vertex.y = y;
                 vertex.z = z;
 
-                geometry.vertices.push(vertex);
+                geometry.vertices.push(vertex);//Adds the vector as vertices to the geomety
+                //Moves the geometry in t
                 dirs.push({ x: (Math.random() * movementSpeeds) - (movementSpeeds / 2), y: (Math.random() * movementSpeeds) - (movementSpeeds / 2), z: (Math.random() * movementSpeeds) - (movementSpeeds / 2) });
             }
 
@@ -550,7 +583,7 @@ void main()
                 // console.log("direction before math ", direction);
                 // console.log("both ", direction * delta);
                 //CAMERA MOVES HERE
-                var speed = 100;
+                var speed = 50;
                 direction.x *= delta * speed;
                 direction.y *= delta * speed;
                 direction.z *= delta * speed;
