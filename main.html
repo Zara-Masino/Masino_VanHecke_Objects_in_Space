@@ -10,28 +10,31 @@
 
     <script type="x-shader/x-vertex" id="vertexShader">
 
+        //These variables are read in from our custom uniforms property in the shader material object
         uniform float delta;
         uniform float alpha;
-        out float rand;
+        out float rand; //This rand variable will be populated with information via the vertex shader
 
+        //This random function returns a random number based on 2 numbers that made pretty colors we liked
         float random( vec2 p )
         {
-            vec2 K1 = vec2(
+            vec2 K1 = vec2( //Vector 2 variable with two very specific numbers
                 23.14069263277926, // e^pi (Gelfond's constant)
                  2.665144142690225 // 2^sqrt(2) (Gelfondâ€“Schneider constant)
             );
-            return fract( cos( dot(p,K1) ) * 12345.6789 );
+            return fract( cos( dot(p,K1) ) * 12345.6789 ); //Returns a number based on random calculations
         }
 
         void main() 
         {
-            rand = random( vec2(2, 1) );
+            rand = random( vec2(1, 9) ); //Returns random number we will use to 
             // Can change the impact of delta here
             float displacement = delta * alpha;
             // The vertex displacement is simply the sine of delta
             vec3 p = position;
             p += displacement*p;
         
+            //Change the position of the vertex using the new number we just calculated
             gl_Position =  projectionMatrix * modelViewMatrix * vec4(p, 1.0);
         }
 
@@ -56,6 +59,8 @@ void main()
         let mouseX = 0, mouseY = 0;
 
         var scene = new THREE.Scene();
+
+
         // var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
         var cameraPosition = new THREE.Vector3(300, 300, 300)
         // camera.position.set(300, 300, 300);
@@ -152,7 +157,6 @@ void main()
                 camera.position.fromArray(view.eye); //Positions each camera in a specific spot
                 camera.up.fromArray(view.up); //Moves a camera specifically 
                 view.camera = camera;//Adds the camera to the specific view
-
             }
 
             renderer = new THREE.WebGLRenderer({ canvas: myCanvas, antialias: true });
@@ -381,6 +385,9 @@ void main()
             shape.object.position.z = cameraPosition.z + (z);
         }
 
+        //https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
+        //The above link helped us with determining the equation we would use to calculate the distance between two
+        //points
         //Calculates the distance between two points
         function calcDistance(point, shape) {
             //This calculates the distance of two points based on the distance formula
@@ -514,7 +521,8 @@ void main()
             }
         }
 
-
+        //https://codepen.io/Xanmia/pen/nqyMgJ
+        //This link helped us identify how to create particle explosions in our code
         //This function actually creates the particles that will explode whenever the camera collides with an object
         function ExplodeAnimation(x, y, z) {
             var geometry = new THREE.Geometry(); //Create a geometry
@@ -596,6 +604,8 @@ void main()
             requestAnimationFrame(animate);
 
 
+            https://threejs.org/examples/?q=pointer#misc_controls_pointerlock
+            //The above link helped greatly with both delta time and with the pointer lock controls
             if (controls.isLocked === true) { //This if statement only occurs when the pointerlock control system is enabled
                 const time = performance.now(); //This returns the value of time (of type double) in milliseconds
                 const delta = (time - prevTime) / 1000; //This calculates delta time based on subtracting the current time a 
