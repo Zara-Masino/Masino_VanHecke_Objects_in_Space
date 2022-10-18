@@ -87,6 +87,7 @@ void main()
         var dirs = [];
         var parts = [];
         var direction = new THREE.Vector3();
+        var backDirection = new THREE.Vector3();
         let index;
         let prevTime = performance.now();
         const velocity = new THREE.Vector3();
@@ -110,7 +111,7 @@ void main()
                 bottomWindow: Math.floor(window.innerHeight * 0.0),
                 widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
-                background: new THREE.Color(0.8, 0.0, 0.0),
+                background: new THREE.Color(0.5, 0.5, 0.5),
                 eye: [300, 300, 300], //Sets up where the camera originally looks
                 up: [0, 1, 0],
                 fov: 100, //Sets up how zoomed in the camera is
@@ -579,6 +580,16 @@ void main()
             render(); //Calls render function
 
             views[1].camera.getWorldDirection(direction); //Gets the direction in which the camera is looking
+            let xBackDirection = (direction.x*-1) + views[1].camera.position.x;
+            let yBackDirection = (direction.y*-1) + views[1].camera.position.y;
+            let zBackDirection = (direction.z*-1) + views[1].camera.position.z;
+
+            backDirection.x = xBackDirection;
+            backDirection.y = yBackDirection;
+            backDirection.z = zBackDirection;
+
+            console.log(backDirection);
+
 
             var pCount = parts.length;
             while (pCount--) {
@@ -587,9 +598,9 @@ void main()
             // console.log(views[1].camera, "camera 1");
             // console.log(cameraPosition.y, "camera positoin 1");
 
-            executeMovements();
+            //executeMovements();
             for (let i = 0; i < objects.length; i++) {
-                collisionDetection(cameraPosition, objects[i]);
+              //  collisionDetection(cameraPosition, objects[i]);
                 tooFar(cameraPosition, objects[i]);
             }
 
@@ -638,9 +649,13 @@ void main()
                 // console.log("direction should change ", direction);
                 // console.log(views[0].camera);
                 //views[0].camera.lookAt(direction);
+
+
+
+
                 let newLook = calcLookAt(cameraPosition, direction);
                 // console.log("back camera lookat " , newlook);
-                views[0].camera.lookAt(newLook);
+                views[0].camera.lookAt(backDirection);
 
 
                 //lookAwayFrom(views[0].camera,direction);
@@ -657,7 +672,7 @@ void main()
 
 
         //Make and place objects
-        initObjects(200);
+        initObjects(20);
         parts.push(new ExplodeAnimation(0, 0));
         animate();
 
