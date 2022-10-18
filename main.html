@@ -111,17 +111,10 @@ void main()
                 bottomWindow: Math.floor(window.innerHeight * 0.0),
                 widthWindow: Math.floor(window.innerWidth * 0.7),
                 heightWindow: Math.floor(window.innerHeight * 1.0),
-                background: new THREE.Color(0.5, 0.5, 0.5),
+                background: new THREE.Color(0.2, 0.2, 0.8),
                 eye: [300, 300, 300], //Sets up where the camera originally looks
                 up: [0, 1, 0],
-                fov: 100, //Sets up how zoomed in the camera is
-                // updateCamera: function (backCamera, scene, mouseX) {
-
-                //     backCamera.position.x += mouseX * 0.05;
-                //     backCamera.position.x = Math.max(Math.min(backCamera.position.x, 2000), - 2000);
-                //     backCamera.lookAt(scene.position);
-
-                // }
+                fov: 100 //Sets up how zoomed in the camera is
             },
             {
                 //Frontward facing camera
@@ -137,14 +130,7 @@ void main()
                 background: new THREE.Color(0.0, 0.0, 0.0),
                 eye: [300, 300, 300], //Sets up where the camera originally looks
                 up: [0, 0, 1],
-                fov: 100,//Sets up how zoomed in the camera is
-                // updateCamera: function (camera, scene, mouseX) {
-
-                //     camera.position.x -= mouseX * 0.05;
-                //     camera.position.x = Math.max(Math.min(camera.position.x, 2000), - 2000);
-                //     camera.lookAt(camera.position.clone().setY(0));
-
-                // }
+                fov: 100
             }
         ];
 
@@ -402,44 +388,6 @@ void main()
 
 
 
-        function calcLookAt(cameraPos, otherLookAt) {
-            //  console.log("camerapos ", cameraPos);
-            // console.log("first camera lookat ", otherLookAt);
-            // console.log("camera position ", cameraPos);
-            let xDistance = Math.abs(cameraPos.x - otherLookAt.x);
-            let yDistance = Math.abs(cameraPos.y - otherLookAt.y);
-            let zDistance = Math.abs(cameraPos.z - otherLookAt.z);
-
-            let newX, newY, newZ;
-            if (cameraPos.x < otherLookAt.x) {
-                newX = cameraPos.x - xDistance;
-            }
-            else {
-                newX = cameraPos.x + xDistance;
-            }
-
-
-            if (cameraPos.y < otherLookAt.y) {
-                newY = cameraPos.y - yDistance;
-            }
-            else {
-                newY = cameraPos.y + yDistance;
-            }
-
-
-            if (cameraPos.z < otherLookAt.z) {
-                newZ = cameraPos.z - zDistance;
-            }
-            else {
-                newZ = cameraPos.z + zDistance;
-            }
-
-            //console.log("x y and z ", newX, newY, newZ);
-            let nowLookAt = new THREE.Vector3(newX, newY, newZ);
-            // console.log("second camera lookat ", nowLookAt);
-            return nowLookAt;
-        }
-
         //Calculates whether two points (the camera position and the position of an object) are within bounds of one another
         //
         function tooFar(point, shape) {
@@ -574,22 +522,21 @@ void main()
 
         }
 
+
+        function rearCamera(direction){
+            backDirection.x = (direction.x*-1) + views[1].camera.position.x;
+            backDirection.y = (direction.y*-1) + views[1].camera.position.y;
+            backDirection.z = (direction.z*-1) + views[1].camera.position.z;
+
+        }
+
         //The animate function is a function which is continuously called every frame of the program
         function animate() {
 
             render(); //Calls render function
 
             views[1].camera.getWorldDirection(direction); //Gets the direction in which the camera is looking
-            let xBackDirection = (direction.x*-1) + views[1].camera.position.x;
-            let yBackDirection = (direction.y*-1) + views[1].camera.position.y;
-            let zBackDirection = (direction.z*-1) + views[1].camera.position.z;
-
-            backDirection.x = xBackDirection;
-            backDirection.y = yBackDirection;
-            backDirection.z = zBackDirection;
-
-            console.log(backDirection);
-
+            rearCamera(direction);
 
             var pCount = parts.length;
             while (pCount--) {
@@ -598,9 +545,9 @@ void main()
             // console.log(views[1].camera, "camera 1");
             // console.log(cameraPosition.y, "camera positoin 1");
 
-            //executeMovements();
+            executeMovements();
             for (let i = 0; i < objects.length; i++) {
-              //  collisionDetection(cameraPosition, objects[i]);
+                collisionDetection(cameraPosition, objects[i]);
                 tooFar(cameraPosition, objects[i]);
             }
 
@@ -629,13 +576,10 @@ void main()
                 direction.x *= delta * speed;
                 direction.y *= delta * speed;
                 direction.z *= delta * speed;
-                // console.log("direction after math ", direction)
-                // console.log("camera position before ", camera.position);
-                views[1].camera.position.add(direction); //Moves the camera in delta time
-                // console.log("camera position after ", camera.position);
-                //console.log(controls);
 
-                //console.log("direction", direction)
+                views[1].camera.position.add(direction); //Moves the camera in delta time
+
+
                 cameraPosition.x = views[1].camera.position.x;
                 cameraPosition.y = views[1].camera.position.y;
                 cameraPosition.z = views[1].camera.position.z;
@@ -644,30 +588,12 @@ void main()
                 views[0].camera.position.y = cameraPosition.y;
                 views[0].camera.position.z = cameraPosition.z;
 
-                //  console.log("front camera " , views[1].camera.position);
-                // console.log("back camera " , views[0].camera.position);
-                // console.log("direction should change ", direction);
-                // console.log(views[0].camera);
-                //views[0].camera.lookAt(direction);
 
-
-
-
-                let newLook = calcLookAt(cameraPosition, direction);
-                // console.log("back camera lookat " , newlook);
                 views[0].camera.lookAt(backDirection);
 
-
-                //lookAwayFrom(views[0].camera,direction);
-                // transform.rotation= Quaternion.LookRotation(transform.position - camera.position);
-                // console.log("camera ", cameraPosition.x, cameraPosition.y, cameraPosition.z);
                 prevTime = time;
             }
 
-
-            //renderer.render(scene, views[0].camera);
-            //renderer.render(scene, views[1].camera);
-            //renderer.render(scene, backCamera);
         }
 
 
