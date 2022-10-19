@@ -87,6 +87,7 @@ void main(){
         let speed = 50;
         let scene = new THREE.Scene();
  
+        //source: https://threejs.org/examples/webgl_multiple_views.html
         //This creates a JSON object which specifies the different cameras and the views & background colors
         //for each camera
         const views = [
@@ -137,6 +138,7 @@ void main(){
             //Window height and width
         }
  
+        //source: https://threejs.org/examples/webgl_multiple_views.html
         //This function updates the window width and height variables to the actual width and height of the computer
         //regardless of whether the console has been opened or not
         function updateSize() {
@@ -153,6 +155,7 @@ void main(){
         //Adds pointerlock controls to the camera
         var controls = new PointerLockControls(views[1].camera, document.body);
  
+        //source: https://threejs.org/examples/webgl_multiple_views.html
         function render() {
             updateSize(); //Resizes window width and height if needws
             //Iterates through the different view objects
@@ -216,6 +219,7 @@ void main(){
             }
         }
  
+        //inspired by class material
         //Creates custom uniforms that will be used with the shaderMaterials
         var customUniforms = {
             delta: { value: 0 },
@@ -427,6 +431,7 @@ void main(){
                 views[1].background = new THREE.Color(0.8, 0.8, 0.8); //Changes background color to white whenever you
                 //hit an object
                 speed = speed / 2; //Halfs the speed
+                //source: https://www.freecodecamp.org/news/javascript-settimeout-how-to-set-a-timer-in-javascript-or-sleep-for-n-seconds/ 
                 setTimeout(function () { //Wait for 300 milliseconds before you do the following
                     views[1].background = new THREE.Color(0.0, 0.0, 0.0); //Set the background color back to black
                     speed = speed * 2; //Set the speed back to its original state
@@ -484,6 +489,7 @@ void main(){
  
             render(); //Calls render function
  
+            //source: https://stackoverflow.com/questions/14813902/three-js-get-the-direction-in-which-the-camera-is-looking
             views[1].camera.getWorldDirection(direction); //Gets the look at of the frontward facing camera
             rearCamera(direction); 
  
@@ -500,10 +506,11 @@ void main(){
             }
  
             tdelta += 0.03; //Increment the tdelta value which will be used to grow/shrink specified objects continuously
-            if (hasShader == true) { //If the object has a shadermaterial /Intended to prevent objects without shader materials
+            if (hasShader == true) { //If there os at least one object with the shader material
                 //from causing an error
-                objects[index].object.material.uniforms.delta.value = Math.sin(tdelta); //Change all object's with a shader material
+                objects[index].object.material.uniforms.delta.value = Math.sin(tdelta); //Change an objects shader material
                 //So that their delta value in the customUniforms becomes a sin wave which enables the objects to shrink/grow in size
+                //they all share the same uniform and material so it is applied to all of them
             }
 
             requestAnimationFrame(animate);
