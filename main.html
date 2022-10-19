@@ -3,17 +3,17 @@
 <!-- Zara Masino & Brianna Van Hecke -->
 <!--  For our "above and beyond feature, we added particle explosion" -->
 <!--  For our rasterization technique, we added blending -->
- 
+
 <head>
     <title>3D Objects in Space</title>
 </head>
- 
+
 <body>
- 
+
     <canvas id="myCanvas" width="800" height="800"></canvas>
- 
+
     <script type="x-shader/x-vertex" id="vertexShader">
- 
+
         //These variables are read in from our custom uniforms property in the shader material object
         uniform float delta;
         uniform float alpha;
@@ -43,7 +43,7 @@
         }
  
     </script>
- 
+
     <script type="x-shader/x-vertex" id="fragShader">
 in float rand;
  
@@ -53,14 +53,14 @@ void main(){
     gl_FragColor = vec4(1.0, rand, 1.0-rand, 1.0);
 }
     </script>
- 
+
     <script type="module">
- 
+
         //This imports the THREE library and the PointerLockControls from the school's website
         import * as THREE from "http://cs.merrimack.edu/~stuetzlec/three.js-master/build/three.module.js";
         import { PointerLockControls } from 'http://cs.merrimack.edu/~stuetzlec/three.js-master/examples/jsm/controls/PointerLockControls.js';
- 
- 
+
+
         //Variable Declarations
         let renderer;
         let hasShader;
@@ -86,7 +86,7 @@ void main(){
         let objects = [];
         let speed = 50;
         let scene = new THREE.Scene();
- 
+
         //source: https://threejs.org/examples/webgl_multiple_views.html
         //This creates a JSON object which specifies the different cameras and the views & background colors
         //for each camera
@@ -119,7 +119,7 @@ void main(){
                 fov: 100,//Sets up how zoomed in the camera is
             }
         ];
- 
+
         //This function initializes the renderer and the scene for the multiple viewports
         function initScene() {
             //Iterations through the multiple views in the views object
@@ -137,7 +137,7 @@ void main(){
             renderer.setSize(window.innerWidth, window.innerHeight); //Sets the size of the renderer to the entirety of the
             //Window height and width
         }
- 
+
         //source: https://threejs.org/examples/webgl_multiple_views.html
         //This function updates the window width and height variables to the actual width and height of the computer
         //regardless of whether the console has been opened or not
@@ -149,12 +149,12 @@ void main(){
                 renderer.setSize(windowWidth, windowHeight);
             }
         }
- 
+
         initScene(); //Creates the renderers for eachcamera
- 
+
         //Adds pointerlock controls to the camera
         var controls = new PointerLockControls(views[1].camera, document.body);
- 
+
         //source: https://threejs.org/examples/webgl_multiple_views.html
         function render() {
             updateSize(); //Resizes window width and height if needws
@@ -163,13 +163,13 @@ void main(){
                 const view = views[ii]; //Sets the view we will be working on in this for loop to one of the views
                 //in the views object
                 let camera = view.camera; //Sets a variable called camera to the specified views (backwards/forwards)camera
- 
+
                 //Calculates how large exactly the viewport should be
                 const left = Math.floor(windowWidth * view.left);
                 const bottom = Math.floor(windowHeight * view.bottom);
                 const width = Math.floor(windowWidth * view.width);
                 const height = Math.floor(windowHeight * view.height);
- 
+
                 //Gives the renderer a specific size and scissors it
                 renderer.setViewport(left, bottom, width, height);
                 renderer.setScissor(left, bottom, width, height);
@@ -177,16 +177,16 @@ void main(){
                 renderer.setClearColor(view.background); //Gives the renderer for a specific viewport a specific color
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
- 
+
                 renderer.render(scene, camera); //Renders the scene with specified cameras
             }
         }
- 
+
         //When the user clicks then the pointer controls lock into place and become enabled
         document.addEventListener('click', function () {
             controls.lock();
         });
- 
+
         //This function randomly returns a true or false value or a number between 0 and 10 in order to help randomize certain customizations
         function random(type) {
             let randomNumber = Math.round(Math.random() * 10); //Creates a random number between 0 and 10
@@ -202,7 +202,7 @@ void main(){
                 return randomNumber;
             }
         }
- 
+
         //This function makes either a shader material or customized material that involves blending
         function makeMaterial() {
             if (random(1) > 8) { //If the random function returns a random number greater than 8 then return a material
@@ -218,7 +218,7 @@ void main(){
                 return material;
             }
         }
- 
+
         //inspired by class material
         //Creates custom uniforms that will be used with the shaderMaterials
         var customUniforms = {
@@ -231,7 +231,7 @@ void main(){
             vertexShader: document.getElementById('vertexShader').textContent,
             fragmentShader: document.getElementById('fragShader').textContent
         });
- 
+
         //This function calculates and returns a randomized speed within certain bounds
         function movementSpeed(constant) {
             var speed = Math.random() * constant; //Creates a random number for the speed
@@ -240,7 +240,7 @@ void main(){
             }
             return speed; //Returns speed
         }
- 
+
         //Piece function creates and customizes piece objects which will be added to the scene
         function Piece(shape) {
             //Randomizes whether or not the object will rotate on the x,y & z axis
@@ -268,7 +268,7 @@ void main(){
             if (this.depthMovement == true) {
                 this.depthSpeed = movementSpeed(2);//Randomize a speed for the object's z axis movement
             }
- 
+
             // Set up for all of the geometries
             this.create = function () {
                 if (shape == true) { //If a random number is true then enter this if statement
@@ -316,7 +316,7 @@ void main(){
                 scene.add(this.object); //Add the object to the scene
             }
         }
- 
+
         //This function actually executess the object's movements
         function executeMovements() {
             for (let i = 0; i < objects.length; i++) { //Iterates through the for loop of objects
@@ -358,7 +358,7 @@ void main(){
                 }
             }
         }
- 
+
         //This function creates a specified number of objects which will be placed in the scene
         function initObjects(x) {
             for (let i = 0; i < x; i++) { //Iterates for a specified number of times
@@ -371,7 +371,7 @@ void main(){
                 }
             }
         }
- 
+
         //Creates a new random coordinate based on a minimum and maximum
         function makeCoord(max, min) {
             let randomNumber = (Math.random() * max) + min; //Randomly generates a number
@@ -380,7 +380,7 @@ void main(){
             }
             return randomNumber;
         }
- 
+
         //This function places piece objects back within the bounds of the camera's position
         function relocateShape(shape) {
             //Calls the make coord function to randomly generate a new point within specified bounds where the
@@ -388,14 +388,14 @@ void main(){
             let x = makeCoord(200, 10);
             let y = makeCoord(200, 10);
             let z = makeCoord(200, 10);
- 
+
             //Makes the object's position the camera's current position plus whatever randomm coordinates were
             //generated from the makeCoord function and stays within bounds
             shape.object.position.x = views[1].camera.position.x + (x);
             shape.object.position.y = views[1].camera.position.y + (y);
             shape.object.position.z = views[1].camera.position.z + (z);
         }
- 
+
         //https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection
         //The above link helped us with determining the equation we would use to calculate the distance between two
         //points
@@ -409,7 +409,7 @@ void main(){
             )
             return distance; //Returns distance
         }
- 
+
         //Calculates whether two points (the camera position and the position of an object) are within a specified distance of one another of one another
         function tooFar(point, shape) {
             let distance = calcDistance(point, shape); //Calculates distance between camera position and an object
@@ -417,7 +417,7 @@ void main(){
                 relocateShape(shape); //Relocates shape
             };
         }
- 
+
         //Function which detects whether the camera has collided with an object and then provides
         //some functionality to show that the collision was dealt with
         function collisionDetection(point, shape) {
@@ -438,27 +438,27 @@ void main(){
                 }, 300);
             }
         }
- 
+
         //https://codepen.io/Xanmia/pen/nqyMgJ
         //This link helped us identify how to create particle explosions in our code
         //This function actually creates the particles that will explode whenever the camera collides with an object
         function ExplodeAnimation(x, y, z) {
             var geometry = new THREE.Geometry(); //Create a geometry
- 
+
             for (let i = 0; i < totalObjects; i++) { //Iterates a set number of times. Creates another particle each time
                 var vertex = new THREE.Vector3(x, y, z); //Creates a new vector 3 with the given x y z values
                 geometry.vertices.push(vertex);//Adds the vector as vertices to the geomety
                 //Creates different directions the particles will explode off into based on the particles position
                 dirs.push({ x: (Math.random() * movementSpeeds) - (movementSpeeds / 2), y: (Math.random() * movementSpeeds) - (movementSpeeds / 2), z: (Math.random() * movementSpeeds) - (movementSpeeds / 2) });
             }
- 
+
             var colorsRand = Math.round(Math.random() * 17) //Generates a random number that will be used to randomly
             //select a color from the color array
             var material = new THREE.PointsMaterial({ size: objectSize, color: colors[colorsRand] }); //Create point material
             //with random color
             this.object = new THREE.Points(geometry, material);; //make a mesh as the object of this function
             scene.add(this.object); //Adds the particle object to the scene
- 
+
             this.update = function () { //Function which adds all of these particles to the scene and sends them off in random
                 //directions
                 var pCount = totalObjects; //Set pcount equal to the number of total particles we want
@@ -472,27 +472,27 @@ void main(){
                 this.object.geometry.verticesNeedUpdate = true;
             }
         }
- 
+
         //This function creates the look at for the rear view camera
         function rearCamera(direction) {
             //Gets the look at for the rear view look at by doing the following:
-                //1. Multiplies the look at of the forward looking camera by -1
-                //2. Adds the look at to the camera's position
-                //3. This new value is the look at for the rear view camera
+            //1. Multiplies the look at of the forward looking camera by -1
+            //2. Adds the look at to the camera's position
+            //3. This new value is the look at for the rear view camera
             backDirection.x = (direction.x * -1) + views[1].camera.position.x;
             backDirection.y = (direction.y * -1) + views[1].camera.position.y;
             backDirection.z = (direction.z * -1) + views[1].camera.position.z;
         }
- 
+
         //The animate function is a function which is continuously called for every frame of the program
         function animate() {
- 
+
             render(); //Calls render function
- 
+
             //source: https://stackoverflow.com/questions/14813902/three-js-get-the-direction-in-which-the-camera-is-looking
             views[1].camera.getWorldDirection(direction); //Gets the look at of the frontward facing camera
-            rearCamera(direction); 
- 
+            rearCamera(direction);
+
             executeMovements(); //Function which executes the object's movements for each object
 
             //For loop iterates for every object in the objects array
@@ -504,7 +504,7 @@ void main(){
             while (pCount--) {
                 parts[pCount].update(); //Keeps exploding the particles
             }
- 
+
             tdelta += 0.03; //Increment the tdelta value which will be used to grow/shrink specified objects continuously
             if (hasShader == true) { //If there os at least one object with the shader material
                 //from causing an error
@@ -514,26 +514,26 @@ void main(){
             }
 
             requestAnimationFrame(animate);
- 
+
             https://threejs.org/examples/?q=pointer#misc_controls_pointerlock
             //The above link helped greatly with both delta time and with the pointer lock controls
             if (controls.isLocked === true) { //This if statement only occurs when the pointerlock control system is enabled
                 const time = performance.now(); //This returns the value of time (of type double) in milliseconds
                 const delta = (time - prevTime) / 1000; //This calculates delta time based on subtracting the current time a
                 //frame was rendered from the last time a frame was rendered. Then we divide it by 1000
-                
+
                 //Customizes the movement of the camera in every axis so that it will always move by delta time multiplied
                 //by some speed
                 direction.x *= delta * speed;
                 direction.y *= delta * speed;
                 direction.z *= delta * speed;
                 views[1].camera.position.add(direction); //Moves the camera in delta time
- 
+
                 //Sets the rear view camera's position to the position of the front facing camera
-                views[0].camera.position.x = views[1].camera.position.x; 
+                views[0].camera.position.x = views[1].camera.position.x;
                 views[0].camera.position.y = views[1].camera.position.y;
                 views[0].camera.position.z = views[1].camera.position.z;
- 
+
                 views[0].camera.lookAt(backDirection); //Sets the  rear view camera's look at to the look at we calculated
                 //earlier
                 prevTime = time; //Updates the last time the previous frame was calculated
@@ -542,8 +542,8 @@ void main(){
         //Make and place objects
         initObjects(200);
         animate();
- 
+
     </script>
 </body>
- 
+
 </html>
